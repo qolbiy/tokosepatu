@@ -18,6 +18,32 @@
         </a>
     </div>
 
+    <div class="product-detail-preview">
+        <div class="product-detail-image-box">
+            <img
+                src="{{ $produk->foto ? asset('storage/produk/' . $produk->foto) : asset('storage/produk/default-shoe.jpg') }}"
+                alt="{{ $produk->nama_produk }}"
+                class="product-detail-img">
+        </div>
+
+        <div class="product-detail-summary">
+            <span class="product-detail-badge">
+                {{ $produk->kategori->nama_kategori ?? 'Kategori Tidak Tersedia' }}
+            </span>
+
+            <h3>{{ $produk->nama_produk }}</h3>
+
+            <p>
+                {{ $produk->deskripsi ?? 'Belum ada deskripsi produk.' }}
+            </p>
+
+            <div class="product-detail-price">
+                <span>Harga Jual</span>
+                <strong>Rp {{ number_format($produk->harga_jual, 0, ',', '.') }}</strong>
+            </div>
+        </div>
+    </div>
+
     <div class="detail-grid">
         <div class="detail-item">
             <span>Nama Produk</span>
@@ -46,7 +72,20 @@
 
         <div class="detail-item">
             <span>Stok</span>
-            <strong>{{ $produk->stok }}</strong>
+
+            @if ($produk->stok <= 0)
+                <strong>
+                    <span class="status-badge danger">Habis</span>
+                </strong>
+            @elseif ($produk->stok <= 5)
+                <strong>
+                    <span class="status-badge warning">{{ $produk->stok }} tersisa</span>
+                </strong>
+            @else
+                <strong>
+                    <span class="status-badge success">{{ $produk->stok }}</span>
+                </strong>
+            @endif
         </div>
 
         <div class="detail-item">

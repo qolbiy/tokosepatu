@@ -100,13 +100,17 @@
                             <span></span>
                         </div>
 
-                        <div class="shoe-illustration">
-                            <div class="shoe-sole"></div>
-                            <div class="shoe-body"></div>
-                            <div class="shoe-top"></div>
-                            <div class="shoe-line line-one"></div>
-                            <div class="shoe-line line-two"></div>
-                            <div class="shoe-line line-three"></div>
+                        @php
+                        $fotoProdukTerlaris = !empty($produkTerlaris?->foto)
+                        ? asset('storage/produk/' . $produkTerlaris->foto)
+                        : asset('storage/produk/default-shoe.jpg');
+                        @endphp
+
+                        <div class="landing-product-image-box">
+                            <img
+                                src="{{ $fotoProdukTerlaris }}"
+                                alt="{{ $produkTerlaris->nama_produk ?? 'Produk Terlaris' }}"
+                                class="landing-product-image">
                         </div>
 
                         <div class="product-preview-content">
@@ -115,8 +119,8 @@
                             <h3>{{ $produkTerlaris->nama_produk ?? 'Belum ada produk terlaris' }}</h3>
 
                             <p>
-                                {{ $produkTerlaris->nama_kategori ?? 'Kategori belum tersedia' }}
-                                dengan performa penjualan tertinggi berdasarkan hasil data warehouse.
+                                Produk dari kategori {{ $produkTerlaris->nama_kategori ?? 'kategori belum tersedia' }}
+                                ini mencatat penjualan tertinggi secara individual berdasarkan hasil data warehouse.
                             </p>
 
                             <div class="product-preview-stats">
@@ -383,6 +387,7 @@
                             <thead>
                                 <tr>
                                     <th>Ranking</th>
+                                    <th>Foto</th>
                                     <th>Nama Produk</th>
                                     <th>Kategori</th>
                                     <th>Total Terjual</th>
@@ -397,6 +402,19 @@
                                         <span class="rank-badge">
                                             {{ $loop->iteration }}
                                         </span>
+                                    </td>
+
+                                    <td>
+                                        @php
+                                        $fotoProduk = !empty($produk->foto)
+                                        ? asset('storage/produk/' . $produk->foto)
+                                        : asset('storage/produk/default-shoe.jpg');
+                                        @endphp
+
+                                        <img
+                                            src="{{ $fotoProduk }}"
+                                            alt="{{ $produk->nama_produk }}"
+                                            class="landing-table-product-img">
                                     </td>
 
                                     <td>
@@ -421,7 +439,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="empty-table">
+                                    <td colspan="6" class="empty-table">
                                         Belum ada data produk terlaris. Jalankan proses ETL terlebih dahulu.
                                     </td>
                                 </tr>

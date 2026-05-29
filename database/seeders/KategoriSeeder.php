@@ -50,6 +50,11 @@ class KategoriSeeder extends Seeder
                 'nama_kategori' => 'Loafers',
                 'deskripsi' => 'Kategori sepatu semi-formal yang cocok untuk kerja dan acara santai.',
             ],
+            [
+                'kode_kategori' => 'SND',
+                'nama_kategori' => 'Sandals',
+                'deskripsi' => 'Kategori sandal dan alas kaki santai untuk aktivitas harian.',
+            ],
         ];
 
         foreach ($kategoris as $kategori) {

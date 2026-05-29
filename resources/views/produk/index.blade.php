@@ -65,6 +65,7 @@
             <thead>
                 <tr>
                     <th>No</th>
+                    <th>Foto</th>
                     <th>Nama Produk</th>
                     <th>Kategori</th>
                     <th>Merek</th>
@@ -82,11 +83,26 @@
                     <td>
                         {{ $loop->iteration + ($produks->currentPage() - 1) * $produks->perPage() }}
                     </td>
+
+                    <td>
+                        @php
+                        $fotoProduk = $produk->foto
+                        ? asset('storage/produk/' . $produk->foto)
+                        : asset('storage/produk/default-shoe.jpg');
+                        @endphp
+
+                        <img
+                            src="{{ $fotoProduk }}"
+                            alt="{{ $produk->nama_produk }}"
+                            class="product-table-img">
+                    </td>
+
                     <td>{{ $produk->nama_produk }}</td>
                     <td>{{ $produk->kategori->nama_kategori ?? '-' }}</td>
                     <td>{{ $produk->merek ?? '-' }}</td>
                     <td>{{ $produk->ukuran ?? '-' }}</td>
                     <td>{{ $produk->warna ?? '-' }}</td>
+
                     <td>
                         @if ($produk->stok <= 0)
                             <span class="status-badge danger">Habis</span>
@@ -96,7 +112,9 @@
                                 <span class="status-badge success">{{ $produk->stok }}</span>
                                 @endif
                     </td>
+
                     <td>Rp {{ number_format($produk->harga_jual, 0, ',', '.') }}</td>
+
                     <td>
                         <div class="action-buttons">
                             <a href="{{ route('produk.show', $produk->id) }}" class="btn-detail">
@@ -120,7 +138,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" class="empty-table">
+                    <td colspan="10" class="empty-table">
                         Belum ada data produk.
                     </td>
                 </tr>

@@ -19,17 +19,20 @@ class LandingController extends Controller
 
         $produkTerlaris = DB::table('fact_penjualans')
             ->join('dim_produks', 'fact_penjualans.dim_produk_id', '=', 'dim_produks.id')
+            ->leftJoin('produks', 'dim_produks.produk_id', '=', 'produks.id')
             ->select(
                 'dim_produks.nama_produk',
                 'dim_produks.nama_kategori',
                 'dim_produks.harga_jual',
+                'produks.foto',
                 DB::raw('SUM(fact_penjualans.jumlah) as total_terjual'),
                 DB::raw('SUM(fact_penjualans.total_harga) as total_pendapatan')
             )
             ->groupBy(
                 'dim_produks.nama_produk',
                 'dim_produks.nama_kategori',
-                'dim_produks.harga_jual'
+                'dim_produks.harga_jual',
+                'produks.foto'
             )
             ->orderByDesc('total_terjual')
             ->first();
@@ -58,15 +61,18 @@ class LandingController extends Controller
 
         $produkTerlarisLanding = DB::table('fact_penjualans')
             ->join('dim_produks', 'fact_penjualans.dim_produk_id', '=', 'dim_produks.id')
+            ->leftJoin('produks', 'dim_produks.produk_id', '=', 'produks.id')
             ->select(
                 'dim_produks.nama_produk',
                 'dim_produks.nama_kategori',
+                'produks.foto',
                 DB::raw('SUM(fact_penjualans.jumlah) as total_terjual'),
                 DB::raw('SUM(fact_penjualans.total_harga) as total_pendapatan')
             )
             ->groupBy(
                 'dim_produks.nama_produk',
-                'dim_produks.nama_kategori'
+                'dim_produks.nama_kategori',
+                'produks.foto'
             )
             ->orderByDesc('total_terjual')
             ->limit(5)

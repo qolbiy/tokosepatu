@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Produk;
 use App\Models\Kategori;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class ProdukController extends Controller
 {
@@ -51,7 +53,18 @@ class ProdukController extends Controller
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'deskripsi' => 'nullable|string',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
+
+        if ($request->hasFile('foto')) {
+            $file = $request->file('foto');
+
+            $namaFile = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+
+            $file->storeAs('produk', $namaFile, 'public');
+
+            $validated['foto'] = $namaFile;
+        }
 
         Produk::create($validated);
 
@@ -75,25 +88,36 @@ class ProdukController extends Controller
     }
 
     public function update(Request $request, Produk $produk)
-    {
-        $validated = $request->validate([
-            'kategori_id' => 'required|exists:kategoris,id',
-            'nama_produk' => 'required|string|max:255',
-            'merek' => 'nullable|string|max:255',
-            'ukuran' => 'nullable|string|max:255',
-            'warna' => 'nullable|string|max:255',
-            'stok' => 'required|integer|min:0',
-            'harga_beli' => 'required|numeric|min:0',
-            'harga_jual' => 'required|numeric|min:0',
-            'deskripsi' => 'nullable|string',
-        ]);
+{
+    $validated = $request->validate([
+        'kategori_id' => 'required|exists:kategoris,id',
+        'nama_produk' => 'required|string|max:255',
+        'merek' => 'nullable|string|max:255',
+        'ukuran' => 'nullable|string|max:255',
+        'warna' => 'nullable|string|max:255',
+        'stok' => 'required|integer|min:0',
+        'harga_beli' => 'required|numeric|min:0',
+        'harga_jual' => 'required|numeric|min:0',
+        'deskripsi' => 'nullable|string',
+        'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
 
-        $produk->update($validated);
+    if ($request->hasFile('foto')) {
+        $file = $request->file('foto');
 
-        return redirect()
-            ->route('produk.index')
-            ->with('success', 'Data produk berhasil diperbarui.');
+        $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+
+        $file->storeAs('produk', $filename, 'public');
+
+        $validated['foto'] = $filename;
     }
+
+    $produk->update($validated);
+
+    return redirect()
+        ->route('produk.index')
+        ->with('success', 'Data produk berhasil diperbarui.');
+}
 
     public function destroy(Produk $produk)
     {

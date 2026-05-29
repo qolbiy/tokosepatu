@@ -18,13 +18,13 @@
         </a>
     </div>
 
-    <form action="{{ route('produk.store') }}" method="POST" class="crud-form">
+    <form action="{{ route('produk.store') }}" method="POST" class="crud-form" enctype="multipart/form-data">
         @csrf
 
         <div class="form-grid">
             <div class="form-group">
                 <label>Nama Produk</label>
-                <input type="text" name="nama_produk" value="{{ old('nama_produk') }}" placeholder="Contoh: Sneakers Casual">
+                <input type="text" name="nama_produk" value="{{ old('nama_produk') }}" placeholder="Contoh: Adidas Stan Smith">
 
                 @error('nama_produk')
                 <small>{{ $message }}</small>
@@ -50,7 +50,7 @@
 
             <div class="form-group">
                 <label>Merek</label>
-                <input type="text" name="merek" value="{{ old('merek') }}" placeholder="Contoh: Nike">
+                <input type="text" name="merek" value="{{ old('merek') }}" placeholder="Contoh: Adidas">
 
                 @error('merek')
                 <small>{{ $message }}</small>
@@ -59,7 +59,7 @@
 
             <div class="form-group">
                 <label>Ukuran</label>
-                <input type="text" name="ukuran" value="{{ old('ukuran') }}" placeholder="Contoh: 39, 40, 41">
+                <input type="text" name="ukuran" value="{{ old('ukuran') }}" placeholder="Contoh: 39-44">
 
                 @error('ukuran')
                 <small>{{ $message }}</small>
@@ -68,7 +68,7 @@
 
             <div class="form-group">
                 <label>Warna</label>
-                <input type="text" name="warna" value="{{ old('warna') }}" placeholder="Contoh: Hitam">
+                <input type="text" name="warna" value="{{ old('warna') }}" placeholder="Contoh: Putih Hijau">
 
                 @error('warna')
                 <small>{{ $message }}</small>
@@ -110,6 +110,49 @@
                 <small>{{ $message }}</small>
                 @enderror
             </div>
+
+            <div class="form-group full">
+                <label>Foto Produk</label>
+
+                <div class="photo-upload-wrapper" id="photoUploadWrapper">
+                    <input
+                        type="file"
+                        name="foto"
+                        id="fotoProdukInput"
+                        accept="image/jpeg,image/png,image/jpg"
+                        class="photo-upload-input">
+
+                    <div class="photo-upload-content" id="photoUploadContent">
+                        <div class="photo-upload-icon">
+                            <span>+</span>
+                        </div>
+
+                        <h4>Pilih atau seret foto produk</h4>
+                        <p>Gunakan gambar produk dengan format JPG, JPEG, atau PNG. Maksimal 2MB.</p>
+
+                        <button type="button" class="photo-upload-button" id="photoUploadButton">
+                            Pilih Foto
+                        </button>
+                    </div>
+
+                    <div class="photo-preview-content" id="photoPreviewContent">
+                        <div class="photo-preview-box">
+                            <img src="" alt="Preview Foto Produk" id="photoPreviewImage">
+                        </div>
+
+                        <div class="photo-preview-info">
+                            <h4 id="photoFileName">Nama file</h4>
+                            <p>Foto berhasil dipilih. Klik area ini untuk mengganti foto.</p>
+                        </div>
+                    </div>
+                </div>
+
+                @error('foto')
+                <small>{{ $message }}</small>
+                @enderror
+            </div>
+
+            
         </div>
 
         <div class="form-actions">
@@ -123,4 +166,85 @@
         </div>
     </form>
 </section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const wrapper = document.getElementById('photoUploadWrapper');
+        const input = document.getElementById('fotoProdukInput');
+        const button = document.getElementById('photoUploadButton');
+        const uploadContent = document.getElementById('photoUploadContent');
+        const previewContent = document.getElementById('photoPreviewContent');
+        const previewImage = document.getElementById('photoPreviewImage');
+        const fileName = document.getElementById('photoFileName');
+
+        function showPreview(file) {
+            if (!file) {
+                return;
+            }
+
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert('Format foto harus JPG, JPEG, atau PNG.');
+                input.value = '';
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Ukuran foto maksimal 2MB.');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                previewImage.src = event.target.result;
+                fileName.textContent = file.name;
+
+                uploadContent.style.display = 'none';
+                previewContent.style.display = 'flex';
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        wrapper.addEventListener('click', function () {
+            input.click();
+        });
+
+        button.addEventListener('click', function (event) {
+            event.stopPropagation();
+            input.click();
+        });
+
+        input.addEventListener('change', function () {
+            showPreview(input.files[0]);
+        });
+
+        wrapper.addEventListener('dragover', function (event) {
+            event.preventDefault();
+            wrapper.classList.add('dragging');
+        });
+
+        wrapper.addEventListener('dragleave', function () {
+            wrapper.classList.remove('dragging');
+        });
+
+        wrapper.addEventListener('drop', function (event) {
+            event.preventDefault();
+            wrapper.classList.remove('dragging');
+
+            const file = event.dataTransfer.files[0];
+
+            if (file) {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                input.files = dataTransfer.files;
+
+                showPreview(file);
+            }
+        });
+    });
+</script>
 @endsection
