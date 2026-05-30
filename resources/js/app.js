@@ -544,3 +544,72 @@ if (produkTerlarisChartElement && produkChartDataElement) {
         },
     });
 }
+
+/* =========================
+   TECHNOLOGY MARQUEE CURSOR CONTROL
+   ========================= */
+
+const techMarquee = document.getElementById('techMarquee');
+const techTrack = document.getElementById('techTrack');
+
+if (techMarquee && techTrack) {
+    let position = 0;
+    let speed = -0.35;
+    let targetSpeed = -0.35;
+    let lastMouseX = null;
+    let isHovering = false;
+
+    function getLoopWidth() {
+        return techTrack.scrollWidth / 3;
+    }
+
+    function animateTechMarquee() {
+        const loopWidth = getLoopWidth();
+
+        speed += (targetSpeed - speed) * 0.08;
+        position += speed;
+
+        if (position <= -loopWidth) {
+            position += loopWidth;
+        }
+
+        if (position >= 0) {
+            position -= loopWidth;
+        }
+
+        techTrack.style.transform = `translateX(${position}px)`;
+
+        requestAnimationFrame(animateTechMarquee);
+    }
+
+    techMarquee.addEventListener('mouseenter', function (event) {
+        isHovering = true;
+        lastMouseX = event.clientX;
+        targetSpeed = 0;
+    });
+
+    techMarquee.addEventListener('mousemove', function (event) {
+        if (!isHovering || lastMouseX === null) {
+            lastMouseX = event.clientX;
+            return;
+        }
+
+        const deltaX = event.clientX - lastMouseX;
+
+        if (Math.abs(deltaX) > 1) {
+            targetSpeed = deltaX > 0 ? -1.1 : 1.1;
+        } else {
+            targetSpeed = 0;
+        }
+
+        lastMouseX = event.clientX;
+    });
+
+    techMarquee.addEventListener('mouseleave', function () {
+        isHovering = false;
+        lastMouseX = null;
+        targetSpeed = -0.35;
+    });
+
+    animateTechMarquee();
+}

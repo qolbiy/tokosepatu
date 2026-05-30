@@ -7,6 +7,7 @@
     <title>ShoeDW - Data Warehouse Toko Sepatu</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
 </head>
 
 <body>
@@ -110,7 +111,8 @@
                             <img
                                 src="{{ $fotoProdukTerlaris }}"
                                 alt="{{ $produkTerlaris->nama_produk ?? 'Produk Terlaris' }}"
-                                class="landing-product-image">
+                                class="landing-product-image"
+                                loading="lazy">
                         </div>
 
                         <div class="product-preview-content">
@@ -414,7 +416,8 @@
                                         <img
                                             src="{{ $fotoProduk }}"
                                             alt="{{ $produk->nama_produk }}"
-                                            class="landing-table-product-img">
+                                            class="landing-table-product-img"
+                                            loading="lazy">
                                     </td>
 
                                     <td>
@@ -452,6 +455,67 @@
         </section>
     </main>
 
+    <section class="tech-section" data-aos="fade-up">
+        <div class="section-heading" data-aos="fade-up">
+            <span>Teknologi</span>
+            <h2>Teknologi yang Digunakan</h2>
+            <p>
+                Sistem dibangun menggunakan teknologi web modern untuk mendukung
+                pengelolaan data, ETL, data warehouse, dan laporan analisis.
+            </p>
+        </div>
+
+       <div class="tech-marquee" id="techMarquee">
+    <div class="tech-track" id="techTrack">
+        @for ($i = 0; $i < 3; $i++)
+            <div class="tech-item">
+                <i class="devicon-laravel-plain colored"></i>
+                <span>Laravel</span>
+            </div>
+
+            <div class="tech-item">
+                <i class="devicon-php-plain colored"></i>
+                <span>PHP</span>
+            </div>
+
+            <div class="tech-item">
+                <i class="devicon-mysql-plain colored"></i>
+                <span>MySQL</span>
+            </div>
+
+            <div class="tech-item">
+                <i class="devicon-javascript-plain colored"></i>
+                <span>JavaScript</span>
+            </div>
+
+            <div class="tech-item">
+                <i class="devicon-vitejs-plain colored"></i>
+                <span>Vite</span>
+            </div>
+
+            <div class="tech-item">
+                <i class="devicon-tailwindcss-plain colored"></i>
+                <span>Tailwind</span>
+            </div>
+
+            <div class="tech-item">
+                <i class="devicon-laravel-plain colored"></i>
+                <span>Blade</span>
+            </div>
+
+            <div class="tech-item">
+                <span class="tech-text-icon">AOS</span>
+                <span>AOS</span>
+            </div>
+        @endfor
+    </div>
+</div>
+
+        <p class="tech-hint" data-aos="fade-up" data-aos-delay="250">
+            Gerakkan cursor ke kiri atau kanan untuk mengubah arah animasi.
+        </p>
+    </section>
+
     <footer class="footer">
         <div class="footer-inner">
             <div>
@@ -472,12 +536,12 @@
             </div>
 
             <div>
-                <h3>Teknologi</h3>
-                <a href="javascript:void(0)">Laravel</a>
-                <a href="javascript:void(0)">Vite</a>
-                <a href="javascript:void(0)">Chart.js</a>
-                <a href="javascript:void(0)">AOS Animation</a>
-                <a href="javascript:void(0)">MySQL</a>
+                <h3>Fitur Sistem</h3>
+                <a href="#fitur">Data Operasional</a>
+                <a href="#alur">Proses ETL</a>
+                <a href="#schema">Star Schema</a>
+                <a href="#laporan">Laporan Analisis</a>
+                <a href="#laporan">Visualisasi Grafik</a>
             </div>
         </div>
 

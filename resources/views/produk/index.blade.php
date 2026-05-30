@@ -94,7 +94,8 @@
                         <img
                             src="{{ $fotoProduk }}"
                             alt="{{ $produk->nama_produk }}"
-                            class="product-table-img">
+                            class="product-table-img"
+                            loading="lazy">
                     </td>
 
                     <td>{{ $produk->nama_produk }}</td>
