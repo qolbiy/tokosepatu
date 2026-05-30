@@ -16,13 +16,14 @@
             </p>
         </div>
 
-        <form action="{{ route('proses-etl.jalankan') }}" method="POST" onsubmit="return confirm('Jalankan proses ETL sekarang?')">
-            @csrf
+        <!-- Form ETL dengan SweetAlert2 -->
+       <form id="etlForm" action="{{ route('proses-etl.jalankan') }}" method="POST">
+    @csrf
 
-            <button type="submit" class="crud-button">
-                Jalankan ETL
-            </button>
-        </form>
+    <button type="button" class="crud-button" id="etlButton">
+        Jalankan ETL
+    </button>
+</form>
     </div>
 
     @if (session('success'))
@@ -122,4 +123,36 @@
         </div>
     </div>
 </section>
+
+<!-- Tambahkan SweetAlert2 -->
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const etlButton = document.getElementById('etlButton');
+        const etlForm = document.getElementById('etlForm');
+
+        if (etlButton && etlForm) {
+            etlButton.addEventListener('click', function () {
+                Swal.fire({
+                    title: 'Jalankan Proses ETL?',
+                    text: 'Data operasional akan diproses dan dimuat ke data warehouse.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Jalankan',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    confirmButtonColor: '#8b5cf6',
+                    cancelButtonColor: '#64748b'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        etlForm.submit();
+                    }
+                });
+            });
+        }
+    });
+</script>
+
 @endsection

@@ -80,11 +80,13 @@
                     <td>
                         {{ $loop->iteration + ($pelanggans->currentPage() - 1) * $pelanggans->perPage() }}
                     </td>
+
                     <td>{{ $pelanggan->nama_pelanggan }}</td>
                     <td>{{ $pelanggan->email ?? '-' }}</td>
                     <td>{{ $pelanggan->no_hp ?? '-' }}</td>
                     <td>{{ $pelanggan->jenis_kelamin ?? '-' }}</td>
                     <td>{{ $pelanggan->alamat ?? '-' }}</td>
+
                     <td>
                         <div class="action-buttons">
                             <a href="{{ route('pelanggan.show', $pelanggan->id) }}" class="btn-detail">
@@ -95,11 +97,15 @@
                                 Edit
                             </a>
 
-                            <form action="{{ route('pelanggan.destroy', $pelanggan->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data pelanggan ini?')">
+                            <form
+                                action="{{ route('pelanggan.destroy', $pelanggan->id) }}"
+                                method="POST"
+                                class="delete-pelanggan-form"
+                                data-nama="{{ $pelanggan->nama_pelanggan }}">
                                 @csrf
                                 @method('DELETE')
 
-                                <button type="submit" class="btn-delete">
+                                <button type="button" class="btn-delete delete-pelanggan-button">
                                     Hapus
                                 </button>
                             </form>
@@ -121,4 +127,35 @@
         {{ $pelanggans->links() }}
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteButtons = document.querySelectorAll('.delete-pelanggan-button');
+
+        deleteButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                const form = button.closest('.delete-pelanggan-form');
+                const namaPelanggan = form.dataset.nama || 'data pelanggan ini';
+
+                Swal.fire({
+                    title: 'Hapus Data Pelanggan?',
+                    text: 'Data pelanggan "' + namaPelanggan + '" akan dihapus dari sistem.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 @endsection

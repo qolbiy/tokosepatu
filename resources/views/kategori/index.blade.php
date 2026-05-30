@@ -22,43 +22,34 @@
     </div>
 
     <form action="{{ route('kategori.index') }}" method="GET" class="search-form">
-    <div class="search-group">
-        <input 
-            type="text" 
-            name="search" 
-            value="{{ $search ?? '' }}" 
-            placeholder="Cari kode kategori, nama kategori, atau deskripsi..."
-        >
+        <div class="search-group">
+            <input 
+                type="text" 
+                name="search" 
+                value="{{ $search ?? '' }}" 
+                placeholder="Cari kode kategori, nama kategori, atau deskripsi..."
+            >
+            <button type="submit" class="crud-button search-button">Cari</button>
+            @if (!empty($search))
+            <a href="{{ route('kategori.index') }}" class="crud-button secondary search-button">Reset</a>
+            @endif
+        </div>
+    </form>
 
-        <button type="submit" class="crud-button search-button">
-            Cari
-        </button>
-
-        @if (!empty($search))
-            <a href="{{ route('kategori.index') }}" class="crud-button secondary search-button">
-                Reset
-            </a>
-        @endif
-    </div>
-</form>
-
-@if (!empty($search))
+    @if (!empty($search))
     <div class="search-result-info">
         <p>
             Hasil pencarian untuk:
             <strong>{{ $search }}</strong>
         </p>
-
-        <span>
-            Ditemukan {{ $kategoris->total() }} data kategori.
-        </span>
+        <span>Ditemukan {{ $kategoris->total() }} data kategori.</span>
     </div>
-@endif
+    @endif
 
     @if (session('success'))
-        <div class="crud-alert">
-            {{ session('success') }}
-        </div>
+    <div class="crud-alert">
+        {{ session('success') }}
+    </div>
     @endif
 
     <div class="table-responsive">
@@ -75,40 +66,33 @@
 
             <tbody>
                 @forelse ($kategoris as $kategori)
-                    <tr>
-                        <td>
-                            {{ $loop->iteration + ($kategoris->currentPage() - 1) * $kategoris->perPage() }}
-                        </td>
-                        <td>{{ $kategori->kode_kategori }}</td>
-                        <td>{{ $kategori->nama_kategori }}</td>
-                        <td>{{ $kategori->deskripsi ?? '-' }}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="{{ route('kategori.show', $kategori->id) }}" class="btn-detail">
-                                    Detail
-                                </a>
+                <tr>
+                    <td>{{ $loop->iteration + ($kategoris->currentPage() - 1) * $kategoris->perPage() }}</td>
+                    <td>{{ $kategori->kode_kategori }}</td>
+                    <td>{{ $kategori->nama_kategori }}</td>
+                    <td>{{ $kategori->deskripsi ?? '-' }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{{ route('kategori.show', $kategori->id) }}" class="btn-detail">Detail</a>
+                            <a href="{{ route('kategori.edit', $kategori->id) }}" class="btn-edit">Edit</a>
 
-                                <a href="{{ route('kategori.edit', $kategori->id) }}" class="btn-edit">
-                                    Edit
-                                </a>
-
-                                <form action="{{ route('kategori.destroy', $kategori->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data kategori ini?')">
-                                    @csrf
-                                    @method('DELETE')
-
-                                    <button type="submit" class="btn-delete">
-                                        Hapus
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
+                            <form 
+                                action="{{ route('kategori.destroy', $kategori->id) }}" 
+                                method="POST" 
+                                class="delete-kategori-form"
+                                data-nama="{{ $kategori->nama_kategori }}"
+                            >
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" class="btn-delete delete-kategori-button">Hapus</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
                 @empty
-                    <tr>
-                        <td colspan="5" class="empty-table">
-                            Belum ada data kategori.
-                        </td>
-                    </tr>
+                <tr>
+                    <td colspan="5" class="empty-table">Belum ada data kategori.</td>
+                </tr>
                 @endforelse
             </tbody>
         </table>
@@ -118,4 +102,35 @@
         {{ $kategoris->links() }}
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const deleteButtons = document.querySelectorAll('.delete-kategori-button');
+
+    deleteButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const form = button.closest('.delete-kategori-form');
+            const namaKategori = form.dataset.nama || 'data kategori ini';
+
+            Swal.fire({
+                title: 'Hapus Kategori?',
+                text: 'Kategori "' + namaKategori + '" akan dihapus dari sistem.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
 @endsection

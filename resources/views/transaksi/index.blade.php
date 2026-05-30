@@ -85,51 +85,29 @@
             <tbody>
                 @forelse ($transaksis as $transaksi)
                 <tr>
-                    <td>
-                        {{ $loop->iteration + ($transaksis->currentPage() - 1) * $transaksis->perPage() }}
-                    </td>
-
+                    <td>{{ $loop->iteration + ($transaksis->currentPage() - 1) * $transaksis->perPage() }}</td>
                     <td>{{ $transaksi->kode_transaksi }}</td>
-
-                    <td>
-                        {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}
-                    </td>
-
-                    <td>
-                        {{ $transaksi->pelanggan->nama_pelanggan ?? '-' }}
-                    </td>
-
-                    <td>
-                        {{ $transaksi->detailTransaksi->produk->nama_produk ?? '-' }}
-                    </td>
-
-                    <td>
-                        {{ $transaksi->detailTransaksi->jumlah ?? 0 }}
-                    </td>
-
-                    <td>
-                        Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}
-                    </td>
-
-                    <td>
-                        {{ $transaksi->status }}
-                    </td>
+                    <td>{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}</td>
+                    <td>{{ $transaksi->pelanggan->nama_pelanggan ?? '-' }}</td>
+                    <td>{{ $transaksi->detailTransaksi->produk->nama_produk ?? '-' }}</td>
+                    <td>{{ $transaksi->detailTransaksi->jumlah ?? 0 }}</td>
+                    <td>Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
+                    <td>{{ $transaksi->status }}</td>
 
                     <td>
                         <div class="action-buttons">
-                            <a href="{{ route('transaksi.show', $transaksi->id) }}" class="btn-detail">
-                                Detail
-                            </a>
+                            <a href="{{ route('transaksi.show', $transaksi->id) }}" class="btn-detail">Detail</a>
+                            <a href="{{ route('transaksi.edit', $transaksi->id) }}" class="btn-edit">Edit</a>
 
-                            <a href="{{ route('transaksi.edit', $transaksi->id) }}" class="btn-edit">
-                                Edit
-                            </a>
-
-                            <form action="{{ route('transaksi.destroy', $transaksi->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus transaksi ini?')">
+                            <form 
+                                action="{{ route('transaksi.destroy', $transaksi->id) }}" 
+                                method="POST" 
+                                class="delete-transaksi-form" 
+                                data-kode="{{ $transaksi->kode_transaksi }}"
+                            >
                                 @csrf
                                 @method('DELETE')
-
-                                <button type="submit" class="btn-delete">
+                                <button type="button" class="btn-delete delete-transaksi-button">
                                     Hapus
                                 </button>
                             </form>
@@ -138,9 +116,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" class="empty-table">
-                        Belum ada data transaksi.
-                    </td>
+                    <td colspan="9" class="empty-table">Belum ada data transaksi.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -151,4 +127,34 @@
         {{ $transaksis->links() }}
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const deleteButtons = document.querySelectorAll('.delete-transaksi-button');
+
+    deleteButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const form = button.closest('.delete-transaksi-form');
+            const kodeTransaksi = form.dataset.kode || 'transaksi ini';
+
+            Swal.fire({
+                title: 'Hapus Transaksi?',
+                text: 'Transaksi "' + kodeTransaksi + '" akan dihapus dari sistem.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
 @endsection

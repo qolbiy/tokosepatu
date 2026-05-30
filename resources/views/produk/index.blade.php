@@ -87,8 +87,8 @@
                     <td>
                         @php
                         $fotoProduk = $produk->foto
-                        ? asset('storage/produk/' . $produk->foto)
-                        : asset('storage/produk/default-shoe.jpg');
+                            ? asset('storage/produk/' . $produk->foto)
+                            : asset('storage/produk/default-shoe.jpg');
                         @endphp
 
                         <img
@@ -106,11 +106,11 @@
                     <td>
                         @if ($produk->stok <= 0)
                             <span class="status-badge danger">Habis</span>
-                            @elseif ($produk->stok <= 5)
-                                <span class="status-badge warning">{{ $produk->stok }} tersisa</span>
-                                @else
-                                <span class="status-badge success">{{ $produk->stok }}</span>
-                                @endif
+                        @elseif ($produk->stok <= 5)
+                            <span class="status-badge warning">{{ $produk->stok }} tersisa</span>
+                        @else
+                            <span class="status-badge success">{{ $produk->stok }}</span>
+                        @endif
                     </td>
 
                     <td>Rp {{ number_format($produk->harga_jual, 0, ',', '.') }}</td>
@@ -125,11 +125,15 @@
                                 Edit
                             </a>
 
-                            <form action="{{ route('produk.destroy', $produk->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data produk ini?')">
+                            <form
+                                action="{{ route('produk.destroy', $produk->id) }}"
+                                method="POST"
+                                class="delete-produk-form"
+                                data-nama="{{ $produk->nama_produk }}">
                                 @csrf
                                 @method('DELETE')
 
-                                <button type="submit" class="btn-delete">
+                                <button type="button" class="btn-delete delete-produk-button">
                                     Hapus
                                 </button>
                             </form>
@@ -151,4 +155,34 @@
         {{ $produks->links() }}
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const deleteButtons = document.querySelectorAll('.delete-produk-button');
+
+    deleteButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const form = button.closest('.delete-produk-form');
+            const namaProduk = form.dataset.nama || 'data produk ini';
+
+            Swal.fire({
+                title: 'Hapus Produk?',
+                text: 'Produk "' + namaProduk + '" akan dihapus dari sistem.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
 @endsection
