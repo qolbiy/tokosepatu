@@ -613,3 +613,113 @@ if (techMarquee && techTrack) {
 
     animateTechMarquee();
 }
+
+/* =========================
+   LANDING PRELOADER
+   ========================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+    const preloader = document.getElementById('landingPreloader');
+
+    if (preloader) {
+        document.body.classList.add('preloader-active');
+
+        setTimeout(function () {
+            preloader.classList.add('preloader-hide');
+            document.body.classList.remove('preloader-active');
+
+            setTimeout(function () {
+                initHeroCounterAnimation();
+            }, 450);
+        }, 2600);
+
+        setTimeout(function () {
+            preloader.remove();
+        }, 3600);
+    } else {
+        initHeroCounterAnimation();
+    }
+});
+
+/* =========================
+   HERO COUNTER ANIMATION ON VIEW
+   ========================= */
+
+function initHeroCounterAnimation() {
+    const counters = document.querySelectorAll('.counter-number');
+
+    if (!counters.length) {
+        return;
+    }
+
+    function formatNumber(value) {
+        return Math.floor(value).toLocaleString('id-ID');
+    }
+
+    function formatCurrencyMillion(value) {
+        const formattedValue = value.toLocaleString('id-ID', {
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 1,
+        });
+
+        return `Rp ${formattedValue}Jt`;
+    }
+
+    function animateCounter(counter) {
+        if (counter.dataset.animated === 'true') {
+            return;
+        }
+
+        counter.dataset.animated = 'true';
+
+        const target = parseFloat(counter.dataset.target || 0);
+        const format = counter.dataset.format;
+        const duration = 1800;
+        const startTime = performance.now();
+
+        function updateCounter(currentTime) {
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(elapsedTime / duration, 1);
+            const easeProgress = 1 - Math.pow(1 - progress, 3);
+            const currentValue = target * easeProgress;
+
+            if (format === 'currency-million') {
+                counter.textContent = formatCurrencyMillion(currentValue);
+            } else {
+                counter.textContent = formatNumber(currentValue);
+            }
+
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            } else {
+                if (format === 'currency-million') {
+                    counter.textContent = formatCurrencyMillion(target);
+                } else {
+                    counter.textContent = formatNumber(target);
+                }
+            }
+        }
+
+        requestAnimationFrame(updateCounter);
+    }
+
+    counters.forEach(function (counter) {
+        counter.textContent = counter.dataset.format === 'currency-million' ? 'Rp 0Jt' : '0';
+        counter.dataset.animated = 'false';
+    });
+
+    const counterObserver = new IntersectionObserver(function (entries, observer) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.35,
+    });
+
+    counters.forEach(function (counter) {
+        counterObserver.observe(counter);
+    });
+}

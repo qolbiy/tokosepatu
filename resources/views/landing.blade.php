@@ -11,10 +11,28 @@
 </head>
 
 <body>
+
+    <div id="landingPreloader" class="landing-preloader">
+        <div class="preloader-simple-content">
+            <img
+                src="{{ asset('images/logo/logo-shoedw.png') }}"
+                alt="ShoeDW Logo"
+                class="preloader-logo-img">
+
+            <div class="preloader-simple-bar">
+                <div class="preloader-simple-fill"></div>
+            </div>
+
+            <p>Loading<span>.</span><span>.</span><span>.</span></p>
+        </div>
+    </div>
+
     <header class="navbar">
         <a href="#home" class="brand">
-            <span class="brand-icon"></span>
-            <span>Shoe<span>DW</span></span>
+            <img
+                src="{{ asset('images/logo/logo-shoedw.png') }}"
+                alt="ShoeDW Logo"
+                class="brand-logo-img">
         </a>
 
         <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
@@ -58,9 +76,9 @@
                     </h1>
 
                     <p>
-                        Sistem berbasis Laravel untuk mengelola data operasional,
-                        menjalankan proses ETL, menerapkan Star Schema, dan menampilkan
-                        laporan analisis dalam bentuk tabel serta grafik.
+                        Sistem berbasis Laravel yang dirancang untuk mengelola data operasional,
+                        menjalankan proses ETL, menerapkan Star Schema, serta menyajikan laporan
+                        analisis penjualan dalam bentuk tabel dan grafik.
                     </p>
 
                     <div class="hero-actions">
@@ -70,22 +88,34 @@
 
                     <div class="hero-stats">
                         <div class="hero-stat-item">
-                            <strong>{{ $totalProduk }}</strong>
+                            <strong
+                                class="counter-number"
+                                data-target="{{ $totalProduk }}"
+                                data-format="number">0</strong>
                             <span>Produk Sepatu</span>
                         </div>
 
                         <div class="hero-stat-item">
-                            <strong>{{ $totalKategori }}</strong>
+                            <strong
+                                class="counter-number"
+                                data-target="{{ $totalKategori }}"
+                                data-format="number">0</strong>
                             <span>Kategori</span>
                         </div>
 
                         <div class="hero-stat-item">
-                            <strong>{{ $totalTransaksi }}</strong>
+                            <strong
+                                class="counter-number"
+                                data-target="{{ $totalTransaksi }}"
+                                data-format="number">0</strong>
                             <span>Transaksi</span>
                         </div>
 
                         <div class="hero-stat-item">
-                            <strong>Rp {{ number_format($totalPendapatan / 1000000, 1, ',', '.') }}Jt</strong>
+                            <strong
+                                class="counter-number"
+                                data-target="{{ $totalPendapatan / 1000000 }}"
+                                data-format="currency-million">Rp 0Jt</strong>
                             <span>Pendapatan</span>
                         </div>
                     </div>
@@ -465,12 +495,12 @@
             </p>
         </div>
 
-       <div class="tech-marquee" id="techMarquee">
-    <div class="tech-track" id="techTrack">
-        @for ($i = 0; $i < 3; $i++)
-            <div class="tech-item">
-                <i class="devicon-laravel-plain colored"></i>
-                <span>Laravel</span>
+        <div class="tech-marquee" id="techMarquee">
+            <div class="tech-track" id="techTrack">
+                @for ($i = 0; $i < 3; $i++)
+                    <div class="tech-item">
+                    <i class="devicon-laravel-plain colored"></i>
+                    <span>Laravel</span>
             </div>
 
             <div class="tech-item">
@@ -507,9 +537,9 @@
                 <span class="tech-text-icon">AOS</span>
                 <span>AOS</span>
             </div>
-        @endfor
-    </div>
-</div>
+            @endfor
+        </div>
+        </div>
 
         <p class="tech-hint" data-aos="fade-up" data-aos-delay="250">
             Gerakkan cursor ke kiri atau kanan untuk mengubah arah animasi.
