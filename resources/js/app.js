@@ -41,38 +41,7 @@ if (menuToggle && navMenu) {
     });
 }
 
-/* =========================
-   ADMIN SIDEBAR
-   ========================= */
 
-const adminLayout = document.getElementById('adminLayout');
-const adminMenuToggle = document.getElementById('adminMenuToggle');
-const adminSidebar = document.getElementById('adminSidebar');
-const adminOverlay = document.getElementById('adminOverlay');
-const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
-
-if (adminMenuToggle && adminSidebar) {
-    adminMenuToggle.addEventListener('click', () => {
-        adminSidebar.classList.toggle('active');
-
-        if (adminOverlay) {
-            adminOverlay.classList.toggle('active');
-        }
-    });
-}
-
-if (adminOverlay && adminSidebar) {
-    adminOverlay.addEventListener('click', () => {
-        adminSidebar.classList.remove('active');
-        adminOverlay.classList.remove('active');
-    });
-}
-
-if (sidebarCollapseBtn && adminLayout) {
-    sidebarCollapseBtn.addEventListener('click', () => {
-        adminLayout.classList.toggle('sidebar-collapsed');
-    });
-}
 
 /* =========================
    HELPER FUNCTION
@@ -723,3 +692,70 @@ function initHeroCounterAnimation() {
         counterObserver.observe(counter);
     });
 }
+
+/* =========================
+   ADMIN SIDEBAR TOGGLE
+   ========================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+    const adminLayout = document.getElementById('adminLayout');
+    const adminMenuToggle = document.getElementById('adminMenuToggle');
+    const adminOverlay = document.getElementById('adminOverlay');
+    const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
+
+    if (!adminLayout) {
+        return;
+    }
+
+    function isMobileView() {
+        return window.innerWidth <= 1024;
+    }
+
+    function openSidebar() {
+        adminLayout.classList.add('sidebar-open');
+    }
+
+    function closeSidebar() {
+        adminLayout.classList.remove('sidebar-open');
+    }
+
+    function toggleMobileSidebar() {
+        if (adminLayout.classList.contains('sidebar-open')) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    }
+
+    function toggleDesktopSidebar() {
+        adminLayout.classList.toggle('sidebar-collapsed');
+    }
+
+    if (adminMenuToggle) {
+        adminMenuToggle.addEventListener('click', function () {
+            toggleMobileSidebar();
+        });
+    }
+
+    if (adminOverlay) {
+        adminOverlay.addEventListener('click', function () {
+            closeSidebar();
+        });
+    }
+
+    if (sidebarCollapseBtn) {
+        sidebarCollapseBtn.addEventListener('click', function () {
+            if (isMobileView()) {
+                closeSidebar();
+            } else {
+                toggleDesktopSidebar();
+            }
+        });
+    }
+
+    window.addEventListener('resize', function () {
+        if (!isMobileView()) {
+            closeSidebar();
+        }
+    });
+});

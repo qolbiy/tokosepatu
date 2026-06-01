@@ -25,57 +25,89 @@
             </div>
 
             <nav class="admin-menu">
-                <a href="{{ route('dashboard') }}" class="active">
-                    <span>DB</span>
-                    Dashboard
-                </a>
+                <div class="admin-menu-group">
+                    <span class="admin-menu-title">Main</span>
 
-                <a href="{{ route('pelanggan.index') }}">
-                    <span>PL</span>
-                    Data Pelanggan
-                </a>
-
-                <a href="{{ route('kategori.index') }}">
-                    <span>KT</span>
-                    Data Kategori
-                </a>
-
-                <a href="{{ route('produk.index') }}">
-                    <span>PR</span>
-                    Data Produk
-                </a>
-
-                <a href="{{ route('transaksi.index') }}">
-                    <span>PR</span>
-                    Data Transaksi
-                </a>
-
-                <a href="{{ route('proses-etl.index') }}" class="{{ request()->routeIs('proses-etl.*') ? 'active' : '' }}">
-                    <span>ETL</span>
-                    Proses ETL
-                </a>
-
-                <a href="{{ route('data-warehouse.index') }}" class="{{ request()->routeIs('data-warehouse.*') ? 'active' : '' }}">
-                    <span>DW</span>
-                    Data Warehouse
-                </a>
-
-                <a href="{{ route('laporan.index') }}" class="{{ request()->routeIs('laporan.*') ? 'active' : '' }}">
-                    <span>LP</span>
-                    Laporan
-                </a>
-
-                <div class="admin-sidebar-footer">
-                    <a href="{{ route('landing') }}">Kembali ke Landing Page</a>
+                    <a href="{{ route('dashboard') }}" class="active">
+                        <span>DB</span>
+                        <strong>Dashboard</strong>
+                    </a>
                 </div>
+
+                <div class="admin-menu-group">
+                    <span class="admin-menu-title">Master Data</span>
+
+                    <a href="{{ route('pelanggan.index') }}">
+                        <span>PL</span>
+                        <strong>Data Pelanggan</strong>
+                    </a>
+
+                    <a href="{{ route('kategori.index') }}">
+                        <span>KT</span>
+                        <strong>Data Kategori</strong>
+                    </a>
+
+                    <a href="{{ route('produk.index') }}">
+                        <span>PR</span>
+                        <strong>Data Produk</strong>
+                    </a>
+                </div>
+
+                <div class="admin-menu-group">
+                    <span class="admin-menu-title">Transaksi</span>
+
+                    <a href="{{ route('transaksi.index') }}">
+                        <span>TR</span>
+                        <strong>Data Transaksi</strong>
+                    </a>
+                </div>
+
+                <div class="admin-menu-group">
+                    <span class="admin-menu-title">Data Warehouse</span>
+
+                    <a href="{{ route('proses-etl.index') }}" class="{{ request()->routeIs('proses-etl.*') ? 'active' : '' }}">
+                        <span>ETL</span>
+                        <strong>Proses ETL</strong>
+                    </a>
+
+                    <a href="{{ route('data-warehouse.index') }}" class="{{ request()->routeIs('data-warehouse.*') ? 'active' : '' }}">
+                        <span>DW</span>
+                        <strong>Data Warehouse</strong>
+                    </a>
+                </div>
+
+                <div class="admin-menu-group">
+                    <span class="admin-menu-title">Analisis</span>
+
+                    <a href="{{ route('laporan.index') }}" class="{{ request()->routeIs('laporan.*') ? 'active' : '' }}">
+                        <span>LP</span>
+                        <strong>Laporan</strong>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="admin-sidebar-footer">
+                <span class="admin-menu-title">Navigasi</span>
+
+                <a href="{{ route('landing') }}">
+                    Kembali ke Landing Page
+                </a>
+            </div>
         </aside>
 
         <div class="admin-main">
             <header class="admin-topbar">
-                <button class="admin-menu-toggle" id="adminMenuToggle" type="button">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                <button class="admin-menu-toggle" id="adminMenuToggle" type="button" aria-label="Buka menu">
+                    <svg class="admin-menu-svg admin-menu-svg-open" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 7H20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+                        <path d="M4 12H20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+                        <path d="M4 17H20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+                    </svg>
+
+                    <svg class="admin-menu-svg admin-menu-svg-close" viewBox="0 0 24 24" fill="none">
+                        <path d="M6 6L18 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+                        <path d="M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+                    </svg>
                 </button>
 
                 <div>
@@ -235,23 +267,23 @@
                                 </tr>
                             </thead>
                             <tbody>
-    @forelse ($transaksiTerbaru as $transaksi)
-        <tr>
-            <td>{{ $transaksi->kode_transaksi }}</td>
-            <td>{{ $transaksi->pelanggan->nama_pelanggan ?? '-' }}</td>
-            <td>{{ $transaksi->detailTransaksi->produk->nama_produk ?? '-' }}</td>
-            <td>{{ $transaksi->detailTransaksi->produk->kategori->nama_kategori ?? '-' }}</td>
-            <td>Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
-            <td>{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}</td>
-        </tr>
-    @empty
-        <tr>
-            <td colspan="6" class="empty-table">
-                Belum ada data transaksi.
-            </td>
-        </tr>
-    @endforelse
-</tbody>
+                                @forelse ($transaksiTerbaru as $transaksi)
+                                <tr>
+                                    <td>{{ $transaksi->kode_transaksi }}</td>
+                                    <td>{{ $transaksi->pelanggan->nama_pelanggan ?? '-' }}</td>
+                                    <td>{{ $transaksi->detailTransaksi->produk->nama_produk ?? '-' }}</td>
+                                    <td>{{ $transaksi->detailTransaksi->produk->kategori->nama_kategori ?? '-' }}</td>
+                                    <td>Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="6" class="empty-table">
+                                        Belum ada data transaksi.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
                         </table>
                     </div>
                 </section>
