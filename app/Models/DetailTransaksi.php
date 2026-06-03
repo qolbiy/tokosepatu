@@ -12,6 +12,7 @@ class DetailTransaksi extends Model
     protected $fillable = [
         'transaksi_id',
         'produk_id',
+        'ukuran',
         'jumlah',
         'harga_satuan',
         'subtotal',

@@ -302,6 +302,7 @@
                                 data-merek="{{ $produk->merek ?? 'Merek tidak tersedia' }}"
                                 data-harga="{{ $produk->harga_jual }}"
                                 data-stok="{{ $produk->stok }}"
+                                data-ukuran="{{ $produk->ukuran }}"
                                 data-foto="{{ $fotoProduk }}">
                                 Beli Sekarang
                             </button>
@@ -427,6 +428,14 @@
                     </div>
 
                     <div class="checkout-form-row">
+
+                        <div class="checkout-form-group">
+                            <label for="checkoutShoeSize">Ukuran Sepatu</label>
+                            <select name="ukuran" id="checkoutShoeSize">
+                                <option value="">Pilih ukuran</option>
+                            </select>
+                        </div>
+
                         <div class="checkout-form-group">
                             <label for="checkoutQuantity">Jumlah</label>
                             <input
@@ -437,13 +446,39 @@
                                 min="1">
                         </div>
 
-                        <div class="checkout-form-group">
-                            <label for="checkoutPayment">Metode Pembayaran</label>
-                            <select name="metode_pembayaran" id="checkoutPayment">
-                                <option value="COD">COD - Bayar di Tempat</option>
-                                <option value="Transfer Bank">Transfer Bank</option>
-                                <option value="QRIS Simulasi">QRIS Simulasi</option>
-                            </select>
+                        <div class="checkout-form-group full-width">
+                            <label>Metode Pembayaran</label>
+
+                            <input type="hidden" name="metode_pembayaran" id="checkoutPayment" value="COD">
+
+                            <div class="payment-method-list">
+                                <button
+                                    type="button"
+                                    class="payment-method-card active"
+                                    data-payment-method="COD">
+                                    <span class="payment-method-badge">COD</span>
+                                    <strong>Bayar di Tempat</strong>
+                                    <small>Pembayaran dilakukan saat produk diterima</small>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="payment-method-card"
+                                    data-payment-method="Transfer Bank">
+                                    <span class="payment-method-badge">Transfer</span>
+                                    <strong>Transfer Bank</strong>
+                                    <small>Pembayaran melalui rekening bank tujuan</small>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="payment-method-card"
+                                    data-payment-method="QRIS Simulasi">
+                                    <span class="payment-method-badge">QRIS</span>
+                                    <strong>QRIS Simulasi</strong>
+                                    <small>Pembayaran dengan scan QRIS simulasi</small>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -471,34 +506,20 @@
                                 transaksi akan menunggu konfirmasi admin sebelum diproses lebih lanjut.
                             </p>
 
-                            <div class="bank-info-box">
-                                <span>Rekening Tujuan</span>
-                                <strong>BCA 1234567890</strong>
-                                <small>a.n. ShoeDW Ups Tegal</small>
-                            </div>
                         </div>
 
                         <div class="payment-info-item" data-payment-info="QRIS Simulasi">
                             <div class="payment-info-header">
                                 <span>QRIS</span>
-                                <strong>QRIS Simulasi</strong>
+                                <strong>QRIS</strong>
                             </div>
 
                             <p>
-                                Pembayaran menggunakan QRIS simulasi. Setelah checkout dilakukan,
+                                Pembayaran menggunakan QRIS. Setelah checkout dilakukan,
                                 transaksi akan menunggu konfirmasi admin terlebih dahulu.
                             </p>
 
-                            <div class="qris-preview-box">
-                                <img
-                                    src="{{ asset('images/payment/qris-shoedw.jpeg') }}"
-                                    alt="QRIS ShoeDW"
-                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-
-                                <small style="display: none;">
-                                    Gambar QRIS belum tersedia. Simpan QRIS di public/images/payment/qris-shoedw.jpeg
-                                </small>
-                            </div>
+                            
                         </div>
                     </div>
 
@@ -762,11 +783,12 @@
             <p>© 2026 ShoeDW. Sistem Data Warehouse Toko Sepatu.</p>
         </div>
     </footer>
-    <div
-        id="checkoutSessionAlert"
-        data-success="{{ session('success') }}"
-        data-error="{{ session('error') }}">
-    </div>
+  <div
+    id="checkoutSessionAlert"
+    data-success="{{ session('success') }}"
+    data-error="{{ session('error') }}"
+    data-validation-error="{{ $errors->first() }}">
+</div>
 </body>
 
 </html>

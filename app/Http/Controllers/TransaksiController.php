@@ -181,19 +181,20 @@ class TransaksiController extends Controller
     }
 
     public function konfirmasi(Transaksi $transaksi)
-    {
-        if ($transaksi->status !== 'Pending') {
-            return redirect()
-                ->route('transaksi.index')
-                ->with('error', 'Transaksi ini tidak memerlukan konfirmasi.');
-        }
-
-        $transaksi->update([
-            'status' => 'Selesai',
-        ]);
-
+{
+    if ($transaksi->status !== 'Pending') {
         return redirect()
             ->route('transaksi.index')
-            ->with('success', 'Transaksi berhasil dikonfirmasi.');
+            ->with('error', 'Transaksi ini tidak memerlukan konfirmasi.');
     }
+
+    $transaksi->update([
+        'status' => 'Selesai',
+        'confirmed_at' => now(),
+    ]);
+
+    return redirect()
+        ->route('transaksi.index')
+        ->with('success', 'Transaksi berhasil dikonfirmasi. Status berubah menjadi Selesai.');
+}
 }

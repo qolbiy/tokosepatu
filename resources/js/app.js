@@ -902,13 +902,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const checkoutProductBrand = document.getElementById('checkoutProductBrand');
     const checkoutProductPrice = document.getElementById('checkoutProductPrice');
     const checkoutProductStock = document.getElementById('checkoutProductStock');
-    const checkoutQuantity = document.getElementById('checkoutQuantity');
-    const checkoutTotalPrice = document.getElementById('checkoutTotalPrice');
 
     const checkoutCustomerName = document.getElementById('checkoutCustomerName');
+    const checkoutCustomerEmail = document.getElementById('checkoutCustomerEmail');
     const checkoutCustomerPhone = document.getElementById('checkoutCustomerPhone');
+    const checkoutCustomerGender = document.getElementById('checkoutCustomerGender');
+    const checkoutCustomerAddress = document.getElementById('checkoutCustomerAddress');
+
+    const checkoutShoeSize = document.getElementById('checkoutShoeSize');
+    const checkoutQuantity = document.getElementById('checkoutQuantity');
     const checkoutPayment = document.getElementById('checkoutPayment');
+    const checkoutTotalPrice = document.getElementById('checkoutTotalPrice');
     const checkoutSubmitButton = document.getElementById('checkoutSubmitButton');
+
+    const paymentMethodCards = document.querySelectorAll('.payment-method-card');
     const paymentInfoItems = document.querySelectorAll('.payment-info-item');
 
     if (!checkoutButtons.length || !checkoutModal) {
@@ -926,12 +933,100 @@ document.addEventListener('DOMContentLoaded', function () {
         }).format(value || 0);
     }
 
+    function setPaymentMethod(method) {
+        if (checkoutPayment) {
+            checkoutPayment.value = method;
+        }
+
+        paymentMethodCards.forEach(function (card) {
+            if (card.dataset.paymentMethod === method) {
+                card.classList.add('active');
+            } else {
+                card.classList.remove('active');
+            }
+        });
+
+        paymentInfoItems.forEach(function (item) {
+            if (item.dataset.paymentInfo === method) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+
+    function renderShoeSizes(productSize) {
+        if (!checkoutShoeSize) {
+            return;
+        }
+
+        checkoutShoeSize.innerHTML = '<option value="">Pilih ukuran</option>';
+
+        let sizes = [];
+
+        if (productSize.includes('-')) {
+            const sizeRange = productSize.split('-');
+            const startSize = Number(sizeRange[0]);
+            const endSize = Number(sizeRange[1]);
+
+            if (!Number.isNaN(startSize) && !Number.isNaN(endSize) && startSize <= endSize) {
+                for (let size = startSize; size <= endSize; size++) {
+                    sizes.push(String(size));
+                }
+            }
+        } else {
+            sizes = productSize
+                .split(',')
+                .map(function (size) {
+                    return size.trim();
+                })
+                .filter(function (size) {
+                    return size !== '';
+                });
+        }
+
+        if (sizes.length > 0) {
+            sizes.forEach(function (size) {
+                const option = document.createElement('option');
+                option.value = size;
+                option.textContent = size;
+                checkoutShoeSize.appendChild(option);
+            });
+        } else {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Ukuran tidak tersedia';
+            checkoutShoeSize.appendChild(option);
+        }
+    }
+
+    function updateTotalPrice() {
+        if (!checkoutQuantity || !checkoutTotalPrice) {
+            return;
+        }
+
+        let quantity = Number(checkoutQuantity.value);
+
+        if (quantity < 1 || Number.isNaN(quantity)) {
+            quantity = 1;
+            checkoutQuantity.value = 1;
+        }
+
+        if (selectedProductStock > 0 && quantity > selectedProductStock) {
+            quantity = selectedProductStock;
+            checkoutQuantity.value = selectedProductStock;
+        }
+
+        checkoutTotalPrice.textContent = formatRupiah(selectedProductPrice * quantity);
+    }
+
     function openCheckoutModal(button) {
         const productId = button.dataset.id || '';
         const productName = button.dataset.nama || 'Produk';
         const productBrand = button.dataset.merek || '-';
         const productPrice = Number(button.dataset.harga || 0);
         const productStock = Number(button.dataset.stok || 0);
+        const productSize = button.dataset.ukuran || '';
         const productImage = button.dataset.foto || '';
 
         selectedProductPrice = productPrice;
@@ -972,6 +1067,9 @@ document.addEventListener('DOMContentLoaded', function () {
             checkoutTotalPrice.textContent = formatRupiah(productPrice);
         }
 
+        renderShoeSizes(productSize);
+        setPaymentMethod('COD');
+
         checkoutModal.classList.add('show');
         checkoutModal.setAttribute('aria-hidden', 'false');
         document.body.classList.add('modal-open');
@@ -982,42 +1080,6 @@ document.addEventListener('DOMContentLoaded', function () {
         checkoutModal.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('modal-open');
     }
-
-    function updateTotalPrice() {
-        if (!checkoutQuantity || !checkoutTotalPrice) {
-            return;
-        }
-
-        let quantity = Number(checkoutQuantity.value);
-
-        if (quantity < 1 || Number.isNaN(quantity)) {
-            quantity = 1;
-            checkoutQuantity.value = 1;
-        }
-
-        if (selectedProductStock > 0 && quantity > selectedProductStock) {
-            quantity = selectedProductStock;
-            checkoutQuantity.value = selectedProductStock;
-        }
-
-        checkoutTotalPrice.textContent = formatRupiah(selectedProductPrice * quantity);
-    }
-
-    function updatePaymentInfo() {
-    if (!checkoutPayment || !paymentInfoItems.length) {
-        return;
-    }
-
-    const selectedPayment = checkoutPayment.value;
-
-    paymentInfoItems.forEach(function (item) {
-        if (item.dataset.paymentInfo === selectedPayment) {
-            item.classList.add('active');
-        } else {
-            item.classList.remove('active');
-        }
-    });
-}
 
     function showWarning(message, inputElement = null) {
         Swal.fire({
@@ -1040,15 +1102,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     if (checkoutModalClose) {
-        checkoutModalClose.addEventListener('click', function () {
-            closeCheckoutModal();
-        });
+        checkoutModalClose.addEventListener('click', closeCheckoutModal);
     }
 
     if (checkoutModalOverlay) {
-        checkoutModalOverlay.addEventListener('click', function () {
-            closeCheckoutModal();
-        });
+        checkoutModalOverlay.addEventListener('click', closeCheckoutModal);
     }
 
     if (checkoutQuantity) {
@@ -1056,24 +1114,29 @@ document.addEventListener('DOMContentLoaded', function () {
         checkoutQuantity.addEventListener('change', updateTotalPrice);
     }
 
-    if (checkoutPayment) {
-    checkoutPayment.addEventListener('change', updatePaymentInfo);
-    updatePaymentInfo();
-}
+    if (paymentMethodCards.length > 0) {
+        paymentMethodCards.forEach(function (card) {
+            card.addEventListener('click', function () {
+                const selectedMethod = card.dataset.paymentMethod;
+                setPaymentMethod(selectedMethod);
+            });
+        });
+    }
 
     if (checkoutSubmitButton) {
         checkoutSubmitButton.addEventListener('click', function (event) {
             event.preventDefault();
 
             const customerName = checkoutCustomerName ? checkoutCustomerName.value.trim() : '';
-const customerEmail = checkoutCustomerEmail ? checkoutCustomerEmail.value.trim() : '';
-const customerPhone = checkoutCustomerPhone ? checkoutCustomerPhone.value.trim() : '';
-const customerGender = checkoutCustomerGender ? checkoutCustomerGender.value : '';
-const customerAddress = checkoutCustomerAddress ? checkoutCustomerAddress.value.trim() : '';
-const quantity = checkoutQuantity ? Number(checkoutQuantity.value) : 1;
-const paymentMethod = checkoutPayment ? checkoutPayment.value : 'COD';
-const productName = checkoutProductName ? checkoutProductName.textContent : 'Produk';
-const totalPrice = checkoutTotalPrice ? checkoutTotalPrice.textContent : 'Rp 0';
+            const customerEmail = checkoutCustomerEmail ? checkoutCustomerEmail.value.trim() : '';
+            const customerPhone = checkoutCustomerPhone ? checkoutCustomerPhone.value.trim() : '';
+            const customerGender = checkoutCustomerGender ? checkoutCustomerGender.value : '';
+            const customerAddress = checkoutCustomerAddress ? checkoutCustomerAddress.value.trim() : '';
+            const shoeSize = checkoutShoeSize ? checkoutShoeSize.value : '';
+            const quantity = checkoutQuantity ? Number(checkoutQuantity.value) : 1;
+            const paymentMethod = checkoutPayment ? checkoutPayment.value : 'COD';
+            const productName = checkoutProductName ? checkoutProductName.textContent : 'Produk';
+            const totalPrice = checkoutTotalPrice ? checkoutTotalPrice.textContent : 'Rp 0';
 
             if (!customerName) {
                 showWarning('Nama pembeli wajib diisi.', checkoutCustomerName);
@@ -1081,24 +1144,29 @@ const totalPrice = checkoutTotalPrice ? checkoutTotalPrice.textContent : 'Rp 0';
             }
 
             if (!customerEmail) {
-    showWarning('Email pembeli wajib diisi.', checkoutCustomerEmail);
-    return;
-}
+                showWarning('Email pembeli wajib diisi.', checkoutCustomerEmail);
+                return;
+            }
 
-if (!customerPhone) {
-    showWarning('Nomor WhatsApp wajib diisi.', checkoutCustomerPhone);
-    return;
-}
+            if (!customerPhone) {
+                showWarning('Nomor WhatsApp wajib diisi.', checkoutCustomerPhone);
+                return;
+            }
 
-if (!customerGender) {
-    showWarning('Jenis kelamin wajib dipilih.', checkoutCustomerGender);
-    return;
-}
+            if (!customerGender) {
+                showWarning('Jenis kelamin wajib dipilih.', checkoutCustomerGender);
+                return;
+            }
 
-if (!customerAddress) {
-    showWarning('Alamat pembeli wajib diisi.', checkoutCustomerAddress);
-    return;
-}
+            if (!customerAddress) {
+                showWarning('Alamat pembeli wajib diisi.', checkoutCustomerAddress);
+                return;
+            }
+
+            if (!shoeSize) {
+                showWarning('Ukuran sepatu wajib dipilih.', checkoutShoeSize);
+                return;
+            }
 
             if (quantity < 1 || Number.isNaN(quantity)) {
                 showWarning('Jumlah pembelian tidak valid.', checkoutQuantity);
@@ -1114,18 +1182,19 @@ if (!customerAddress) {
                 icon: 'question',
                 title: 'Lanjutkan Pembelian?',
                 html: `
-    <div style="text-align:left;line-height:1.8">
-        <strong>Nama:</strong> ${customerName}<br>
-        <strong>Email:</strong> ${customerEmail}<br>
-        <strong>No. WhatsApp:</strong> ${customerPhone}<br>
-        <strong>Jenis Kelamin:</strong> ${customerGender}<br>
-        <strong>Alamat:</strong> ${customerAddress}<br>
-        <strong>Produk:</strong> ${productName}<br>
-        <strong>Jumlah:</strong> ${quantity} Produk<br>
-        <strong>Pembayaran:</strong> ${paymentMethod}<br>
-        <strong>Total:</strong> ${totalPrice}
-    </div>
-`,
+                    <div style="text-align:left;line-height:1.8">
+                        <strong>Nama:</strong> ${customerName}<br>
+                        <strong>Email:</strong> ${customerEmail}<br>
+                        <strong>No. WhatsApp:</strong> ${customerPhone}<br>
+                        <strong>Jenis Kelamin:</strong> ${customerGender}<br>
+                        <strong>Alamat:</strong> ${customerAddress}<br>
+                        <strong>Produk:</strong> ${productName}<br>
+                        <strong>Ukuran:</strong> ${shoeSize}<br>
+                        <strong>Jumlah:</strong> ${quantity} Produk<br>
+                        <strong>Pembayaran:</strong> ${paymentMethod}<br>
+                        <strong>Total:</strong> ${totalPrice}
+                    </div>
+                `,
                 showCancelButton: true,
                 confirmButtonText: 'Ya, Lanjutkan',
                 cancelButtonText: 'Batal',
@@ -1134,12 +1203,12 @@ if (!customerAddress) {
                 reverseButtons: true,
             }).then(function (result) {
                 if (result.isConfirmed) {
-    const checkoutForm = document.getElementById('checkoutForm');
+                    const checkoutForm = document.getElementById('checkoutForm');
 
-    if (checkoutForm) {
-        checkoutForm.submit();
-    }
-}
+                    if (checkoutForm) {
+                        checkoutForm.submit();
+                    }
+                }
             });
         });
     }
@@ -1150,7 +1219,6 @@ if (!customerAddress) {
         }
     });
 });
-
 
 /* =========================
    CHECKOUT SESSION ALERT
@@ -1164,7 +1232,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const successMessage = checkoutSessionAlert.dataset.success;
-    const errorMessage = checkoutSessionAlert.dataset.error;
+const errorMessage = checkoutSessionAlert.dataset.error;
+const validationErrorMessage = checkoutSessionAlert.dataset.validationError;
 
     if (successMessage) {
         Swal.fire({
@@ -1185,6 +1254,16 @@ document.addEventListener('DOMContentLoaded', function () {
             confirmButtonColor: '#8b5cf6',
         });
     }
+
+    if (validationErrorMessage) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Data Checkout Belum Valid',
+        text: validationErrorMessage,
+        confirmButtonText: 'Mengerti',
+        confirmButtonColor: '#8b5cf6',
+    });
+}
 });
 /* =========================
    CONFIRM TRANSACTION ALERT
@@ -1290,4 +1369,253 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     animateTestimonialMarquee();
+});
+
+/* =========================
+   CHECKOUT PAYMENT COUNTDOWN AND STATUS POLLING
+   ========================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+    const countdownBox = document.querySelector('.payment-countdown-box');
+    const countdownText = document.getElementById('paymentCountdown');
+    const paymentStatusText = document.getElementById('paymentStatusText');
+
+    if (!countdownBox || !countdownText || !paymentStatusText) {
+        return;
+    }
+
+    const deadlineValue = countdownBox.dataset.deadline;
+    const statusUrl = countdownBox.dataset.statusUrl;
+    const expiredUrl = countdownBox.dataset.expiredUrl;
+
+    let lastStatus = paymentStatusText.textContent.trim();
+    let successAlertShown = false;
+    let expiredAlertShown = false;
+    let expiredRequestSent = false;
+    let countdownInterval = null;
+    let statusInterval = null;
+
+    function getCsrfToken() {
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+
+        return csrfMeta ? csrfMeta.getAttribute('content') : '';
+    }
+
+    function stopIntervals() {
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+
+        if (statusInterval) {
+            clearInterval(statusInterval);
+            statusInterval = null;
+        }
+    }
+
+    function showPaymentSuccessAlert() {
+        if (successAlertShown) {
+            return;
+        }
+
+        successAlertShown = true;
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Pembayaran Berhasil',
+            text: 'Pembayaran berhasil dikonfirmasi oleh admin. Status pesanan Anda sudah Selesai.',
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#16a34a',
+        });
+    }
+
+    function showPaymentExpiredAlert() {
+        if (expiredAlertShown) {
+            return;
+        }
+
+        expiredAlertShown = true;
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Pembayaran Expired',
+            text: 'Batas waktu pembayaran telah habis. Silakan ulangi pesanan dari halaman produk.',
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#f97316',
+        });
+    }
+
+    function setPaymentAsConfirmed(showAlert = false) {
+        stopIntervals();
+
+        lastStatus = 'Selesai';
+
+        paymentStatusText.textContent = 'Selesai';
+        paymentStatusText.classList.remove('payment-status-pending');
+        paymentStatusText.classList.remove('payment-status-expired');
+        paymentStatusText.classList.add('payment-status-success');
+
+        countdownBox.classList.remove('expired');
+        countdownBox.classList.add('payment-confirmed');
+
+        countdownText.textContent = 'Lunas';
+
+        const countdownDescription = countdownBox.querySelector('p');
+
+        if (countdownDescription) {
+            countdownDescription.textContent = 'Pembayaran sudah dikonfirmasi oleh admin. Pesanan Anda telah berstatus Selesai.';
+        }
+
+        if (showAlert) {
+            showPaymentSuccessAlert();
+        }
+    }
+
+    function setPaymentAsExpired(showAlert = false) {
+        stopIntervals();
+
+        lastStatus = 'Kadaluarsa';
+
+        paymentStatusText.textContent = 'Kadaluarsa';
+        paymentStatusText.classList.remove('payment-status-pending');
+        paymentStatusText.classList.remove('payment-status-success');
+        paymentStatusText.classList.add('payment-status-expired');
+
+        countdownBox.classList.remove('payment-confirmed');
+        countdownBox.classList.add('expired');
+
+        countdownText.textContent = '00:00';
+
+        const countdownDescription = countdownBox.querySelector('p');
+
+        if (countdownDescription) {
+            countdownDescription.textContent = 'Batas waktu pembayaran telah habis. Silakan ulangi pesanan dari halaman produk.';
+        }
+
+        if (showAlert) {
+            showPaymentExpiredAlert();
+        }
+    }
+
+    function markPaymentAsExpired() {
+        if (!expiredUrl || expiredRequestSent || lastStatus !== 'Pending') {
+            return;
+        }
+
+        expiredRequestSent = true;
+
+        fetch(expiredUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': getCsrfToken(),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({}),
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (data && data.status === 'Kadaluarsa') {
+                    setPaymentAsExpired(true);
+                    return;
+                }
+
+                if (data && data.status === 'Selesai') {
+                    setPaymentAsConfirmed(true);
+                    return;
+                }
+
+                setPaymentAsExpired(true);
+            })
+            .catch(function () {
+                setPaymentAsExpired(true);
+            });
+    }
+
+    function updateCountdown() {
+        if (lastStatus === 'Selesai') {
+            setPaymentAsConfirmed(false);
+            return;
+        }
+
+        if (lastStatus === 'Kadaluarsa') {
+            setPaymentAsExpired(false);
+            return;
+        }
+
+        if (!deadlineValue) {
+            countdownText.textContent = '10:00';
+            return;
+        }
+
+        const deadline = new Date(deadlineValue).getTime();
+
+        if (Number.isNaN(deadline)) {
+            countdownText.textContent = '10:00';
+            return;
+        }
+
+        const now = new Date().getTime();
+        const distance = deadline - now;
+
+        if (distance <= 0) {
+            countdownText.textContent = '00:00';
+            markPaymentAsExpired();
+            return;
+        }
+
+        const minutes = Math.floor(distance / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        countdownText.textContent =
+            String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+    }
+
+    function checkPaymentStatus() {
+        if (!statusUrl || lastStatus !== 'Pending') {
+            return;
+        }
+
+        fetch(statusUrl)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (!data || !data.status) {
+                    return;
+                }
+
+                if (data.status === 'Selesai') {
+                    setPaymentAsConfirmed(true);
+                    return;
+                }
+
+                if (data.status === 'Kadaluarsa') {
+                    setPaymentAsExpired(true);
+                    return;
+                }
+
+                lastStatus = data.status;
+            })
+            .catch(function () {
+                // Abaikan error kecil agar halaman tetap aman.
+            });
+    }
+
+    if (lastStatus === 'Selesai') {
+        setPaymentAsConfirmed(false);
+        return;
+    }
+
+    if (lastStatus === 'Kadaluarsa') {
+        setPaymentAsExpired(false);
+        return;
+    }
+
+    updateCountdown();
+
+    countdownInterval = setInterval(updateCountdown, 1000);
+    statusInterval = setInterval(checkPaymentStatus, 8000);
 });

@@ -16,7 +16,15 @@ class Transaksi extends Model
         'total_harga',
         'status',
         'metode_pembayaran',
+        'payment_deadline',
+        'confirmed_at',
     ];
+
+    protected $casts = [
+    'tanggal_transaksi' => 'datetime',
+    'payment_deadline' => 'datetime',
+    'confirmed_at' => 'datetime',
+];
 
     public function pelanggan()
     {
@@ -29,19 +37,19 @@ class Transaksi extends Model
     }
 
     public function konfirmasi(Transaksi $transaksi)
-{
-    if ($transaksi->status !== 'Pending') {
+    {
+        if ($transaksi->status !== 'Pending') {
+            return redirect()
+                ->route('transaksi.index')
+                ->with('error', 'Transaksi ini tidak memerlukan konfirmasi.');
+        }
+
+        $transaksi->update([
+            'status' => 'Selesai',
+        ]);
+
         return redirect()
             ->route('transaksi.index')
-            ->with('error', 'Transaksi ini tidak memerlukan konfirmasi.');
+            ->with('success', 'Transaksi berhasil dikonfirmasi.');
     }
-
-    $transaksi->update([
-        'status' => 'Selesai',
-    ]);
-
-    return redirect()
-        ->route('transaksi.index')
-        ->with('success', 'Transaksi berhasil dikonfirmasi.');
-}
 }

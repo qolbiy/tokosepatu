@@ -26,7 +26,9 @@
 
         <div class="detail-item">
             <span>Tanggal Transaksi</span>
-            <strong>{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}</strong>
+            <strong>
+                {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}
+            </strong>
         </div>
 
         <div class="detail-item">
@@ -34,44 +36,67 @@
             <strong>{{ $transaksi->pelanggan->nama_pelanggan ?? '-' }}</strong>
         </div>
 
-       <div class="detail-item">
-    <span>Status</span>
+        <div class="detail-item">
+            <span>Status</span>
 
-    @php
-        $statusClass = match ($transaksi->status) {
-            'Selesai' => 'selesai',
-            'Pending' => 'pending',
-            default => 'default',
-        };
-    @endphp
+            @php
+                $statusClass = match ($transaksi->status) {
+                    'Selesai' => 'selesai',
+                    'Pending' => 'pending',
+                    'Kadaluarsa' => 'kadaluarsa',
+                    default => 'default',
+                };
+            @endphp
 
-    <strong>
-        <span class="status-badge {{ $statusClass }}">
-            {{ $transaksi->status }}
-        </span>
-    </strong>
-</div>
-<div class="detail-item">
-    <span>Metode Pembayaran</span>
+            <strong>
+                <span class="status-badge {{ $statusClass }}">
+                    {{ $transaksi->status }}
+                </span>
+            </strong>
+        </div>
 
-    @php
-        $metodePembayaran = $transaksi->metode_pembayaran ?? '-';
+        <div class="detail-item">
+            <span>Metode Pembayaran</span>
 
-        $paymentClass = match ($metodePembayaran) {
-            'COD' => 'cod',
-            'Transfer Bank' => 'transfer',
-            'QRIS Simulasi' => 'qris',
-            default => 'default',
-        };
-    @endphp
+            @php
+                $metodePembayaran = $transaksi->metode_pembayaran ?? '-';
 
-    <strong>
-        <span class="payment-badge {{ $paymentClass }}">
-            {{ $metodePembayaran }}
-        </span>
-    </strong>
-</div>
-        
+                $paymentClass = match ($metodePembayaran) {
+                    'COD' => 'cod',
+                    'Transfer Bank' => 'transfer',
+                    'QRIS Simulasi' => 'qris',
+                    default => 'default',
+                };
+            @endphp
+
+            <strong>
+                <span class="payment-badge {{ $paymentClass }}">
+                    {{ $metodePembayaran }}
+                </span>
+            </strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Batas Pembayaran</span>
+            <strong>
+                @if ($transaksi->payment_deadline)
+                    {{ \Carbon\Carbon::parse($transaksi->payment_deadline)->format('d M Y H:i') }}
+                @else
+                    -
+                @endif
+            </strong>
+        </div>
+
+        <div class="detail-item">
+            <span>Waktu Konfirmasi</span>
+            <strong>
+                @if ($transaksi->confirmed_at)
+                    {{ \Carbon\Carbon::parse($transaksi->confirmed_at)->format('d M Y H:i') }}
+                @else
+                    Belum dikonfirmasi
+                @endif
+            </strong>
+        </div>
 
         <div class="detail-item">
             <span>Produk</span>
@@ -79,8 +104,15 @@
         </div>
 
         <div class="detail-item">
+            <span>Ukuran Sepatu</span>
+            <strong>{{ $transaksi->detailTransaksi->ukuran ?? '-' }}</strong>
+        </div>
+
+        <div class="detail-item">
             <span>Kategori Produk</span>
-            <strong>{{ $transaksi->detailTransaksi->produk->kategori->nama_kategori ?? '-' }}</strong>
+            <strong>
+                {{ $transaksi->detailTransaksi->produk->kategori->nama_kategori ?? '-' }}
+            </strong>
         </div>
 
         <div class="detail-item">

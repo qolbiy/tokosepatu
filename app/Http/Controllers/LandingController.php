@@ -121,9 +121,9 @@ class LandingController extends Controller
             ->orderBy('merek', 'asc')
             ->pluck('merek');
 
-$testimoniPelanggan = Pelanggan::latest()
-    ->limit(8)
-    ->get();
+        $testimoniPelanggan = Pelanggan::latest()
+            ->limit(8)
+            ->get();
 
         return view('landing', compact(
             'totalProduk',
@@ -163,6 +163,7 @@ $testimoniPelanggan = Pelanggan::latest()
             'no_hp' => 'required|string|max:20',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'alamat' => 'required|string|max:500',
+            'ukuran' => 'required|string|max:10',
             'jumlah' => 'required|integer|min:1',
             'metode_pembayaran' => 'required|in:COD,Transfer Bank,QRIS Simulasi',
         ]);
@@ -199,11 +200,18 @@ $testimoniPelanggan = Pelanggan::latest()
                 'total_harga' => $subtotal,
                 'status' => $statusTransaksi,
                 'metode_pembayaran' => $validated['metode_pembayaran'],
+                'payment_deadline' => $statusTransaksi === 'Pending'
+                    ? now()->addMinutes(1)
+                    : null,
+                'confirmed_at' => $statusTransaksi === 'Selesai'
+                    ? now()
+                    : null,
             ]);
 
             DetailTransaksi::create([
                 'transaksi_id' => $transaksi->id,
                 'produk_id' => $produk->id,
+                'ukuran' => $validated['ukuran'],
                 'jumlah' => $validated['jumlah'],
                 'harga_satuan' => $produk->harga_jual,
                 'subtotal' => $subtotal,
@@ -213,15 +221,84 @@ $testimoniPelanggan = Pelanggan::latest()
 
             DB::commit();
 
+            if ($statusTransaksi === 'Pending') {
+                return redirect()
+                    ->route('checkout.pending', $transaksi->id)
+                    ->with('success', 'Pesanan berhasil dibuat. Silakan lakukan pembayaran sebelum batas waktu habis.');
+            }
+
             return redirect()
                 ->to(route('landing') . '#produk')
-                ->with('success', 'Pesanan berhasil dibuat. Silakan jalankan ETL untuk memperbarui data warehouse.');
+                ->with('success', 'Pesanan berhasil dibuat dengan metode COD. Transaksi langsung berstatus Selesai.');
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()
                 ->to(route('landing') . '#produk')
                 ->with('error', 'Pesanan gagal dibuat: ' . $e->getMessage());
+        }
+    }
+
+    public function checkoutPending(Transaksi $transaksi)
+    {
+        $transaksi->load([
+            'pelanggan',
+            'detailTransaksi.produk',
+        ]);
+
+        return view('checkout-pending', compact('transaksi'));
+    }
+
+    public function checkoutStatus(Transaksi $transaksi)
+    {
+        return response()->json([
+            'status' => $transaksi->status,
+            'confirmed_at' => $transaksi->confirmed_at
+                ? \Carbon\Carbon::parse($transaksi->confirmed_at)->format('d M Y H:i')
+                : null,
+        ]);
+    }
+
+    public function checkoutExpired(Transaksi $transaksi)
+    {
+        if ($transaksi->status !== 'Pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Transaksi tidak dapat diubah menjadi kadaluarsa.',
+                'status' => $transaksi->status,
+            ]);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $transaksi->load('detailTransaksi.produk');
+
+            if ($transaksi->detailTransaksi && $transaksi->detailTransaksi->produk) {
+                $transaksi->detailTransaksi->produk->increment(
+                    'stok',
+                    $transaksi->detailTransaksi->jumlah
+                );
+            }
+
+            $transaksi->update([
+                'status' => 'Kadaluarsa',
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Batas waktu pembayaran telah habis. Silakan ulangi pesanan.',
+                'status' => 'Kadaluarsa',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status transaksi: ' . $e->getMessage(),
+            ], 500);
         }
     }
 }

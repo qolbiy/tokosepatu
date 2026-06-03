@@ -14,6 +14,15 @@ use App\Http\Controllers\LandingController;
 Route::get('/', [LandingController::class, 'index'])
     ->name('landing');
 
+Route::get('/checkout/pending/{transaksi}', [LandingController::class, 'checkoutPending'])
+    ->name('checkout.pending');
+
+Route::get('/checkout/status/{transaksi}', [LandingController::class, 'checkoutStatus'])
+    ->name('checkout.status');
+
+Route::post('/checkout/expired/{transaksi}', [LandingController::class, 'checkoutExpired'])
+    ->name('checkout.expired');
+
 Route::get('/detail-produk/{produk}', [LandingController::class, 'showProduk'])
     ->name('landing.produk.show');
 
