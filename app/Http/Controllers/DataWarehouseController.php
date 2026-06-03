@@ -47,20 +47,20 @@ class DataWarehouseController extends Controller
         ));
     }
 
- public function prosesEtl()
-{
-    $this->resetDataWarehouse();
+    public function prosesEtl()
+    {
+        $this->resetDataWarehouse();
 
-    $this->loadDimPelanggan();
-    $this->loadDimKategori();
-    $this->loadDimProduk();
-    $this->loadDimWaktu();
-    $this->loadFactPenjualan();
+        $this->loadDimPelanggan();
+        $this->loadDimKategori();
+        $this->loadDimProduk();
+        $this->loadDimWaktu();
+        $this->loadFactPenjualan();
 
-    return redirect()
-        ->route('proses-etl.index')
-        ->with('success', 'Proses ETL berhasil dijalankan.');
-}
+        return redirect()
+            ->route('proses-etl.index')
+            ->with('success', 'Proses ETL berhasil dijalankan. Hanya transaksi dengan status Selesai yang diproses ke data warehouse.');
+    }
 
     private function resetDataWarehouse()
     {
@@ -200,7 +200,7 @@ class DataWarehouseController extends Controller
         }
     }
 
-    private function namaBulanIndonesia($bulan)
+    private function namaBulanIndonesia(int $bulan): string
     {
         $namaBulan = [
             1 => 'Januari',

@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Produk;
-use App\Models\Kategori;
+use App\Models\Pelanggan;
 use App\Models\Transaksi;
+use App\Models\Kategori;
 use App\Models\FactPenjualan;
+use App\Models\DetailTransaksi;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class LandingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $totalProduk = Produk::count();
         $totalKategori = Kategori::count();
@@ -87,6 +91,40 @@ class LandingController extends Controller
         $labelProdukTerlarisLanding = $produkTerlarisLanding->pluck('nama_produk')->values();
         $dataProdukTerlarisLanding = $produkTerlarisLanding->pluck('total_terjual')->values();
 
+        /*
+|--------------------------------------------------------------------------
+| Filter Produk Landing Page
+|--------------------------------------------------------------------------
+| Filter ini digunakan untuk menampilkan produk berdasarkan kategori
+| dan merek pada halaman landing page.
+*/
+        $kategoriId = $request->input('kategori');
+        $merek = $request->input('merek');
+
+        $produkLanding = Produk::with('kategori')
+            ->when($kategoriId, function ($query, $kategoriId) {
+                $query->where('kategori_id', $kategoriId);
+            })
+            ->when($merek, function ($query, $merek) {
+                $query->where('merek', $merek);
+            })
+            ->latest()
+            ->limit(20)
+            ->get();
+
+        $kategoriFilterLanding = Kategori::orderBy('nama_kategori', 'asc')->get();
+
+        $merekFilterLanding = Produk::select('merek')
+            ->whereNotNull('merek')
+            ->where('merek', '!=', '')
+            ->distinct()
+            ->orderBy('merek', 'asc')
+            ->pluck('merek');
+
+$testimoniPelanggan = Pelanggan::latest()
+    ->limit(8)
+    ->get();
+
         return view('landing', compact(
             'totalProduk',
             'totalKategori',
@@ -99,7 +137,91 @@ class LandingController extends Controller
             'labelKategoriLanding',
             'dataKategoriLanding',
             'labelProdukTerlarisLanding',
-            'dataProdukTerlarisLanding'
+            'dataProdukTerlarisLanding',
+            'produkLanding',
+            'kategoriFilterLanding',
+            'merekFilterLanding',
+            'kategoriId',
+            'merek',
+            'testimoniPelanggan'
         ));
+    }
+
+    public function showProduk(Produk $produk)
+    {
+        $produk->load('kategori');
+
+        return view('landing-produk-detail', compact('produk'));
+    }
+
+    public function simpanCheckout(Request $request)
+    {
+        $validated = $request->validate([
+            'produk_id' => 'required|exists:produks,id',
+            'nama_pelanggan' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'no_hp' => 'required|string|max:20',
+            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+            'alamat' => 'required|string|max:500',
+            'jumlah' => 'required|integer|min:1',
+            'metode_pembayaran' => 'required|in:COD,Transfer Bank,QRIS Simulasi',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $produk = Produk::findOrFail($validated['produk_id']);
+
+            if ($produk->stok < $validated['jumlah']) {
+                return redirect()
+                    ->to(route('landing') . '#produk')
+                    ->with('error', 'Stok produk tidak mencukupi.');
+            }
+
+            $pelanggan = Pelanggan::create([
+                'nama_pelanggan' => $validated['nama_pelanggan'],
+                'email' => $validated['email'],
+                'no_hp' => $validated['no_hp'],
+                'jenis_kelamin' => $validated['jenis_kelamin'],
+                'alamat' => $validated['alamat'],
+            ]);
+
+            $subtotal = $produk->harga_jual * $validated['jumlah'];
+
+            $statusTransaksi = $validated['metode_pembayaran'] === 'COD'
+                ? 'Selesai'
+                : 'Pending';
+
+            $transaksi = Transaksi::create([
+                'kode_transaksi' => 'TRX-' . strtoupper(Str::random(8)),
+                'pelanggan_id' => $pelanggan->id,
+                'tanggal_transaksi' => now(),
+                'total_harga' => $subtotal,
+                'status' => $statusTransaksi,
+                'metode_pembayaran' => $validated['metode_pembayaran'],
+            ]);
+
+            DetailTransaksi::create([
+                'transaksi_id' => $transaksi->id,
+                'produk_id' => $produk->id,
+                'jumlah' => $validated['jumlah'],
+                'harga_satuan' => $produk->harga_jual,
+                'subtotal' => $subtotal,
+            ]);
+
+            $produk->decrement('stok', $validated['jumlah']);
+
+            DB::commit();
+
+            return redirect()
+                ->to(route('landing') . '#produk')
+                ->with('success', 'Pesanan berhasil dibuat. Silakan jalankan ETL untuk memperbarui data warehouse.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()
+                ->to(route('landing') . '#produk')
+                ->with('error', 'Pesanan gagal dibuat: ' . $e->getMessage());
+        }
     }
 }

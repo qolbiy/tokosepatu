@@ -14,6 +14,12 @@ use App\Http\Controllers\LandingController;
 Route::get('/', [LandingController::class, 'index'])
     ->name('landing');
 
+Route::get('/detail-produk/{produk}', [LandingController::class, 'showProduk'])
+    ->name('landing.produk.show');
+
+Route::post('/checkout/simpan', [LandingController::class, 'simpanCheckout'])
+    ->name('landing.checkout.simpan');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
@@ -22,6 +28,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('kategori', KategoriController::class);
     Route::resource('produk', ProdukController::class);
     Route::resource('transaksi', TransaksiController::class);
+
+    Route::patch('/transaksi/{transaksi}/konfirmasi', [TransaksiController::class, 'konfirmasi'])
+        ->name('transaksi.konfirmasi');
 
     Route::get('/proses-etl', [DataWarehouseController::class, 'etl'])
         ->name('proses-etl.index');

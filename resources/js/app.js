@@ -1,6 +1,8 @@
 import './bootstrap';
 import AOS from 'aos';
 import Chart from 'chart.js/auto';
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 /* =========================
    AOS ANIMATION
@@ -523,8 +525,8 @@ const techTrack = document.getElementById('techTrack');
 
 if (techMarquee && techTrack) {
     let position = 0;
-    let speed = -0.35;
-    let targetSpeed = -0.35;
+    let speed = 0.35;
+    let targetSpeed = 0.35;
     let lastMouseX = null;
     let isHovering = false;
 
@@ -577,7 +579,7 @@ if (techMarquee && techTrack) {
     techMarquee.addEventListener('mouseleave', function () {
         isHovering = false;
         lastMouseX = null;
-        targetSpeed = -0.35;
+        targetSpeed = 0.35;
     });
 
     animateTechMarquee();
@@ -758,4 +760,534 @@ document.addEventListener('DOMContentLoaded', function () {
             closeSidebar();
         }
     });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Landing Product Toggle Animation
+|--------------------------------------------------------------------------
+| Mengatur tombol Lihat Semua Produk dan Sembunyikan Produk pada landing page.
+| Produk tambahan akan muncul dan hilang dengan animasi smooth.
+*/
+
+document.addEventListener('DOMContentLoaded', function () {
+    const productToggleButton = document.getElementById('productToggleButton');
+    const hiddenProducts = document.querySelectorAll('.shop-product-card.product-hidden');
+
+    if (!productToggleButton || hiddenProducts.length === 0) {
+        return;
+    }
+
+    let isExpanded = false;
+
+    hiddenProducts.forEach(function (product) {
+        product.style.display = 'none';
+        product.style.opacity = '0';
+        product.style.transform = 'translateY(18px)';
+        product.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+    });
+
+    productToggleButton.addEventListener('click', function () {
+        isExpanded = !isExpanded;
+
+        if (isExpanded) {
+            hiddenProducts.forEach(function (product, index) {
+                product.style.display = 'block';
+
+                setTimeout(function () {
+                    product.style.opacity = '1';
+                    product.style.transform = 'translateY(0)';
+                }, index * 55);
+            });
+
+            productToggleButton.textContent = 'Sembunyikan Produk';
+        } else {
+            hiddenProducts.forEach(function (product, index) {
+                setTimeout(function () {
+                    product.style.opacity = '0';
+                    product.style.transform = 'translateY(18px)';
+                }, index * 35);
+            });
+
+            setTimeout(function () {
+                hiddenProducts.forEach(function (product) {
+                    product.style.display = 'none';
+                });
+
+                productToggleButton.textContent = 'Lihat Semua Produk';
+
+                const produkSection = document.getElementById('produk');
+
+                if (produkSection) {
+                    produkSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                    });
+                }
+            }, hiddenProducts.length * 35 + 350);
+        }
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Landing Product Section Scroll Handler
+|--------------------------------------------------------------------------
+| Mengatur posisi halaman ketika pengguna melakukan filter produk, reset filter,
+| atau kembali dari halaman detail produk ke section produk landing page.
+| Tujuannya agar halaman langsung berada pada section produk tanpa efek scroll
+| pelan dari bagian beranda.
+*/
+
+document.addEventListener('DOMContentLoaded', function () {
+    const productFilterForm = document.getElementById('productFilterForm');
+    const productFilterReset = document.getElementById('productFilterReset');
+    const backToProductSection = document.getElementById('backToProductSection');
+
+    if (productFilterForm) {
+        productFilterForm.addEventListener('submit', function () {
+            sessionStorage.setItem('goToProductSectionInstantly', 'true');
+        });
+    }
+
+    if (productFilterReset) {
+        productFilterReset.addEventListener('click', function () {
+            sessionStorage.setItem('goToProductSectionInstantly', 'true');
+        });
+    }
+
+    if (backToProductSection) {
+        backToProductSection.addEventListener('click', function () {
+            sessionStorage.setItem('goToProductSectionInstantly', 'true');
+        });
+    }
+
+    const shouldGoToProductSection = sessionStorage.getItem('goToProductSectionInstantly');
+
+    if (shouldGoToProductSection === 'true' && window.location.hash === '#produk') {
+        sessionStorage.removeItem('goToProductSectionInstantly');
+
+        const produkSection = document.getElementById('produk');
+
+        if (produkSection) {
+            document.documentElement.style.scrollBehavior = 'auto';
+            document.body.style.scrollBehavior = 'auto';
+
+            produkSection.scrollIntoView({
+                behavior: 'auto',
+                block: 'start',
+            });
+
+            setTimeout(function () {
+                document.documentElement.style.scrollBehavior = '';
+                document.body.style.scrollBehavior = '';
+            }, 300);
+        }
+    }
+});
+/* =========================
+   LANDING CHECKOUT MODAL WITH SWEETALERT2
+   ========================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+    const checkoutButtons = document.querySelectorAll('.js-checkout-button');
+
+    const checkoutModal = document.getElementById('checkoutModal');
+    const checkoutModalClose = document.getElementById('checkoutModalClose');
+    const checkoutModalOverlay = document.querySelector('#checkoutModal .checkout-modal-overlay');
+
+    const checkoutProductId = document.getElementById('checkoutProductId');
+    const checkoutProductImage = document.getElementById('checkoutProductImage');
+    const checkoutProductName = document.getElementById('checkoutProductName');
+    const checkoutProductBrand = document.getElementById('checkoutProductBrand');
+    const checkoutProductPrice = document.getElementById('checkoutProductPrice');
+    const checkoutProductStock = document.getElementById('checkoutProductStock');
+    const checkoutQuantity = document.getElementById('checkoutQuantity');
+    const checkoutTotalPrice = document.getElementById('checkoutTotalPrice');
+
+    const checkoutCustomerName = document.getElementById('checkoutCustomerName');
+    const checkoutCustomerPhone = document.getElementById('checkoutCustomerPhone');
+    const checkoutPayment = document.getElementById('checkoutPayment');
+    const checkoutSubmitButton = document.getElementById('checkoutSubmitButton');
+    const paymentInfoItems = document.querySelectorAll('.payment-info-item');
+
+    if (!checkoutButtons.length || !checkoutModal) {
+        return;
+    }
+
+    let selectedProductPrice = 0;
+    let selectedProductStock = 0;
+
+    function formatRupiah(value) {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+        }).format(value || 0);
+    }
+
+    function openCheckoutModal(button) {
+        const productId = button.dataset.id || '';
+        const productName = button.dataset.nama || 'Produk';
+        const productBrand = button.dataset.merek || '-';
+        const productPrice = Number(button.dataset.harga || 0);
+        const productStock = Number(button.dataset.stok || 0);
+        const productImage = button.dataset.foto || '';
+
+        selectedProductPrice = productPrice;
+        selectedProductStock = productStock;
+
+        if (checkoutProductId) {
+            checkoutProductId.value = productId;
+        }
+
+        if (checkoutProductImage) {
+            checkoutProductImage.src = productImage;
+            checkoutProductImage.alt = productName;
+        }
+
+        if (checkoutProductName) {
+            checkoutProductName.textContent = productName;
+        }
+
+        if (checkoutProductBrand) {
+            checkoutProductBrand.textContent = productBrand;
+        }
+
+        if (checkoutProductPrice) {
+            checkoutProductPrice.textContent = formatRupiah(productPrice);
+        }
+
+        if (checkoutProductStock) {
+            checkoutProductStock.textContent = `Stok ${productStock}`;
+        }
+
+        if (checkoutQuantity) {
+            checkoutQuantity.value = 1;
+            checkoutQuantity.min = 1;
+            checkoutQuantity.max = productStock;
+        }
+
+        if (checkoutTotalPrice) {
+            checkoutTotalPrice.textContent = formatRupiah(productPrice);
+        }
+
+        checkoutModal.classList.add('show');
+        checkoutModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+    }
+
+    function closeCheckoutModal() {
+        checkoutModal.classList.remove('show');
+        checkoutModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+    }
+
+    function updateTotalPrice() {
+        if (!checkoutQuantity || !checkoutTotalPrice) {
+            return;
+        }
+
+        let quantity = Number(checkoutQuantity.value);
+
+        if (quantity < 1 || Number.isNaN(quantity)) {
+            quantity = 1;
+            checkoutQuantity.value = 1;
+        }
+
+        if (selectedProductStock > 0 && quantity > selectedProductStock) {
+            quantity = selectedProductStock;
+            checkoutQuantity.value = selectedProductStock;
+        }
+
+        checkoutTotalPrice.textContent = formatRupiah(selectedProductPrice * quantity);
+    }
+
+    function updatePaymentInfo() {
+    if (!checkoutPayment || !paymentInfoItems.length) {
+        return;
+    }
+
+    const selectedPayment = checkoutPayment.value;
+
+    paymentInfoItems.forEach(function (item) {
+        if (item.dataset.paymentInfo === selectedPayment) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+    function showWarning(message, inputElement = null) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Data Belum Lengkap',
+            text: message,
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#8b5cf6',
+        }).then(function () {
+            if (inputElement) {
+                inputElement.focus();
+            }
+        });
+    }
+
+    checkoutButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            openCheckoutModal(button);
+        });
+    });
+
+    if (checkoutModalClose) {
+        checkoutModalClose.addEventListener('click', function () {
+            closeCheckoutModal();
+        });
+    }
+
+    if (checkoutModalOverlay) {
+        checkoutModalOverlay.addEventListener('click', function () {
+            closeCheckoutModal();
+        });
+    }
+
+    if (checkoutQuantity) {
+        checkoutQuantity.addEventListener('input', updateTotalPrice);
+        checkoutQuantity.addEventListener('change', updateTotalPrice);
+    }
+
+    if (checkoutPayment) {
+    checkoutPayment.addEventListener('change', updatePaymentInfo);
+    updatePaymentInfo();
+}
+
+    if (checkoutSubmitButton) {
+        checkoutSubmitButton.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            const customerName = checkoutCustomerName ? checkoutCustomerName.value.trim() : '';
+const customerEmail = checkoutCustomerEmail ? checkoutCustomerEmail.value.trim() : '';
+const customerPhone = checkoutCustomerPhone ? checkoutCustomerPhone.value.trim() : '';
+const customerGender = checkoutCustomerGender ? checkoutCustomerGender.value : '';
+const customerAddress = checkoutCustomerAddress ? checkoutCustomerAddress.value.trim() : '';
+const quantity = checkoutQuantity ? Number(checkoutQuantity.value) : 1;
+const paymentMethod = checkoutPayment ? checkoutPayment.value : 'COD';
+const productName = checkoutProductName ? checkoutProductName.textContent : 'Produk';
+const totalPrice = checkoutTotalPrice ? checkoutTotalPrice.textContent : 'Rp 0';
+
+            if (!customerName) {
+                showWarning('Nama pembeli wajib diisi.', checkoutCustomerName);
+                return;
+            }
+
+            if (!customerEmail) {
+    showWarning('Email pembeli wajib diisi.', checkoutCustomerEmail);
+    return;
+}
+
+if (!customerPhone) {
+    showWarning('Nomor WhatsApp wajib diisi.', checkoutCustomerPhone);
+    return;
+}
+
+if (!customerGender) {
+    showWarning('Jenis kelamin wajib dipilih.', checkoutCustomerGender);
+    return;
+}
+
+if (!customerAddress) {
+    showWarning('Alamat pembeli wajib diisi.', checkoutCustomerAddress);
+    return;
+}
+
+            if (quantity < 1 || Number.isNaN(quantity)) {
+                showWarning('Jumlah pembelian tidak valid.', checkoutQuantity);
+                return;
+            }
+
+            if (selectedProductStock > 0 && quantity > selectedProductStock) {
+                showWarning('Jumlah pembelian melebihi stok yang tersedia.', checkoutQuantity);
+                return;
+            }
+
+            Swal.fire({
+                icon: 'question',
+                title: 'Lanjutkan Pembelian?',
+                html: `
+    <div style="text-align:left;line-height:1.8">
+        <strong>Nama:</strong> ${customerName}<br>
+        <strong>Email:</strong> ${customerEmail}<br>
+        <strong>No. WhatsApp:</strong> ${customerPhone}<br>
+        <strong>Jenis Kelamin:</strong> ${customerGender}<br>
+        <strong>Alamat:</strong> ${customerAddress}<br>
+        <strong>Produk:</strong> ${productName}<br>
+        <strong>Jumlah:</strong> ${quantity} Produk<br>
+        <strong>Pembayaran:</strong> ${paymentMethod}<br>
+        <strong>Total:</strong> ${totalPrice}
+    </div>
+`,
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Lanjutkan',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#8b5cf6',
+                cancelButtonColor: '#64748b',
+                reverseButtons: true,
+            }).then(function (result) {
+                if (result.isConfirmed) {
+    const checkoutForm = document.getElementById('checkoutForm');
+
+    if (checkoutForm) {
+        checkoutForm.submit();
+    }
+}
+            });
+        });
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && checkoutModal.classList.contains('show')) {
+            closeCheckoutModal();
+        }
+    });
+});
+
+
+/* =========================
+   CHECKOUT SESSION ALERT
+   ========================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+    const checkoutSessionAlert = document.getElementById('checkoutSessionAlert');
+
+    if (!checkoutSessionAlert) {
+        return;
+    }
+
+    const successMessage = checkoutSessionAlert.dataset.success;
+    const errorMessage = checkoutSessionAlert.dataset.error;
+
+    if (successMessage) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Pesanan Berhasil',
+            text: successMessage,
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#8b5cf6',
+        });
+    }
+
+    if (errorMessage) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Pesanan Gagal',
+            text: errorMessage,
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#8b5cf6',
+        });
+    }
+});
+/* =========================
+   CONFIRM TRANSACTION ALERT
+   ========================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+    const confirmForms = document.querySelectorAll('.confirm-form');
+
+    if (!confirmForms.length) {
+        return;
+    }
+
+    confirmForms.forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            Swal.fire({
+                icon: 'question',
+                title: 'Konfirmasi Transaksi?',
+                text: 'Status transaksi akan diubah dari Pending menjadi Selesai.',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Konfirmasi',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#64748b',
+                reverseButtons: true,
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+/* =========================
+   TESTIMONIAL MARQUEE CURSOR CONTROL
+   ========================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+    const testimonialMarquee = document.querySelector('.testimonial-marquee');
+    const testimonialTrack = document.querySelector('.testimonial-track');
+
+    if (!testimonialMarquee || !testimonialTrack) {
+        return;
+    }
+
+    let position = 0;
+    let speed = -0.35;
+    let targetSpeed = -0.35;
+    let lastMouseX = null;
+    let isHovering = false;
+
+    function getLoopWidth() {
+        return testimonialTrack.scrollWidth / 2;
+    }
+
+    function animateTestimonialMarquee() {
+        const loopWidth = getLoopWidth();
+
+        speed += (targetSpeed - speed) * 0.08;
+        position += speed;
+
+        if (position <= -loopWidth) {
+            position += loopWidth;
+        }
+
+        if (position >= 0) {
+            position -= loopWidth;
+        }
+
+        testimonialTrack.style.transform = `translateX(${position}px)`;
+
+        requestAnimationFrame(animateTestimonialMarquee);
+    }
+
+    testimonialMarquee.addEventListener('mouseenter', function (event) {
+        isHovering = true;
+        lastMouseX = event.clientX;
+        targetSpeed = 0;
+    });
+
+    testimonialMarquee.addEventListener('mousemove', function (event) {
+        if (!isHovering || lastMouseX === null) {
+            lastMouseX = event.clientX;
+            return;
+        }
+
+        const deltaX = event.clientX - lastMouseX;
+
+        if (Math.abs(deltaX) > 1) {
+            targetSpeed = deltaX > 0 ? -1.1 : 1.1;
+        } else {
+            targetSpeed = 0;
+        }
+
+        lastMouseX = event.clientX;
+    });
+
+    testimonialMarquee.addEventListener('mouseleave', function () {
+        isHovering = false;
+        lastMouseX = null;
+        targetSpeed = -0.35;
+    });
+
+    animateTestimonialMarquee();
 });

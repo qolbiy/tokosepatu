@@ -173,21 +173,27 @@ class TransaksiController extends Controller
 
     public function destroy(Transaksi $transaksi)
     {
-        DB::transaction(function () use ($transaksi) {
-            $transaksi->load('detailTransaksi.produk');
-
-            if ($transaksi->status === 'Selesai' && $transaksi->detailTransaksi) {
-                $transaksi->detailTransaksi->produk->increment(
-                    'stok',
-                    $transaksi->detailTransaksi->jumlah
-                );
-            }
-
-            $transaksi->delete();
-        });
+        $transaksi->delete();
 
         return redirect()
             ->route('transaksi.index')
             ->with('success', 'Data transaksi berhasil dihapus.');
+    }
+
+    public function konfirmasi(Transaksi $transaksi)
+    {
+        if ($transaksi->status !== 'Pending') {
+            return redirect()
+                ->route('transaksi.index')
+                ->with('error', 'Transaksi ini tidak memerlukan konfirmasi.');
+        }
+
+        $transaksi->update([
+            'status' => 'Selesai',
+        ]);
+
+        return redirect()
+            ->route('transaksi.index')
+            ->with('success', 'Transaksi berhasil dikonfirmasi.');
     }
 }

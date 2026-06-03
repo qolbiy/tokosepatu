@@ -59,6 +59,7 @@
         </div>
     </div>
 
+<!--
     <div class="dashboard-overview">
         <div class="dashboard-chart-card">
             <div class="admin-section-title">
@@ -114,5 +115,6 @@
             </div>
         </div>
     </div>
+-->
 </section>
 @endsection

@@ -15,6 +15,7 @@ class Transaksi extends Model
         'tanggal_transaksi',
         'total_harga',
         'status',
+        'metode_pembayaran',
     ];
 
     public function pelanggan()
@@ -26,4 +27,21 @@ class Transaksi extends Model
     {
         return $this->hasOne(DetailTransaksi::class);
     }
+
+    public function konfirmasi(Transaksi $transaksi)
+{
+    if ($transaksi->status !== 'Pending') {
+        return redirect()
+            ->route('transaksi.index')
+            ->with('error', 'Transaksi ini tidak memerlukan konfirmasi.');
+    }
+
+    $transaksi->update([
+        'status' => 'Selesai',
+    ]);
+
+    return redirect()
+        ->route('transaksi.index')
+        ->with('success', 'Transaksi berhasil dikonfirmasi.');
+}
 }

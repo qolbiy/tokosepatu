@@ -1,6 +1,6 @@
-# Sistem Data Warehouse Toko Sepatu
+# ShoeDW - Sistem Data Warehouse Toko Sepatu Berbasis Web
 
-Sistem Data Warehouse Toko Sepatu adalah aplikasi berbasis web yang dibangun menggunakan Laravel untuk mengelola data operasional toko sepatu, menjalankan proses ETL, menyimpan data ke dalam data warehouse, serta menampilkan laporan analisis penjualan dalam bentuk grafik dan tabel.
+ShoeDW adalah aplikasi berbasis web yang dibangun menggunakan Laravel untuk mengelola data toko sepatu, mulai dari katalog produk, checkout pembelian, transaksi penjualan, proses ETL, data warehouse, hingga laporan analisis penjualan. Sistem ini memiliki dua sisi utama, yaitu landing page untuk pembeli dan dashboard admin untuk pengelolaan data.
 
 Project ini dibuat sebagai tugas mata kuliah Data Warehouse Semester 8.
 
@@ -10,8 +10,8 @@ Project ini dibuat sebagai tugas mata kuliah Data Warehouse Semester 8.
 
 | Keterangan     | Detail                                               |
 | -------------- | ---------------------------------------------------- |
-| Nama Project   | Sistem Data Warehouse Toko Sepatu                    |
-| Jenis Aplikasi | Aplikasi Web Data Warehouse                          |
+| Nama Project   | ShoeDW - Sistem Data Warehouse Toko Sepatu           |
+| Jenis Aplikasi | Aplikasi Web Toko Sepatu dan Data Warehouse          |
 | Framework      | Laravel                                              |
 | Database       | MySQL                                                |
 | Mata Kuliah    | Data Warehouse                                       |
@@ -22,9 +22,11 @@ Project ini dibuat sebagai tugas mata kuliah Data Warehouse Semester 8.
 
 ## Deskripsi Project
 
-Sistem ini dirancang untuk membantu admin toko sepatu dalam mengelola data operasional seperti data pelanggan, kategori, produk, dan transaksi. Data operasional tersebut kemudian diproses melalui tahapan ETL (Extract, Transform, Load) dan dimasukkan ke dalam data warehouse.
+ShoeDW dirancang untuk membantu pengelolaan toko sepatu berbasis web dengan fitur katalog produk, checkout pembelian, pengelolaan transaksi, dan laporan penjualan. Pada sisi user, sistem menyediakan landing page yang menampilkan produk sepatu, ranking produk terlaris, testimoni pelanggan, serta proses pembelian melalui modal checkout.
 
-Data warehouse pada sistem ini menggunakan model Star Schema, dengan tabel fakta sebagai pusat analisis dan tabel dimensi sebagai pendukung analisis. Data hasil ETL digunakan untuk menampilkan dashboard, laporan penjualan, grafik pendapatan, produk terlaris, kategori terlaris, dan ringkasan penjualan.
+Pada sisi admin, sistem menyediakan dashboard dan menu pengelolaan data operasional seperti pelanggan, kategori, produk, dan transaksi. Data transaksi yang sudah selesai kemudian diproses melalui ETL untuk dimasukkan ke dalam data warehouse. Data warehouse menggunakan model Star Schema dengan tabel fakta penjualan sebagai pusat analisis dan tabel dimensi sebagai pendukung.
+
+Hasil ETL digunakan untuk menampilkan dashboard, laporan analisis penjualan, grafik pendapatan, kategori terlaris, produk terlaris, serta ranking produk pada landing page.
 
 ---
 
@@ -32,37 +34,72 @@ Data warehouse pada sistem ini menggunakan model Star Schema, dengan tabel fakta
 
 Tujuan dari project ini adalah:
 
-1. Membangun sistem pengelolaan data toko sepatu berbasis web.
-2. Menerapkan konsep database operasional dan data warehouse.
-3. Membuat proses ETL dari data operasional ke data warehouse.
-4. Menerapkan model Star Schema pada sistem toko sepatu.
-5. Menampilkan laporan analisis dalam bentuk tabel dan grafik.
-6. Membantu proses pemantauan performa toko sepatu berdasarkan data.
+1. Membangun sistem toko sepatu berbasis web menggunakan Laravel.
+2. Mengelola data operasional toko sepatu seperti pelanggan, kategori, produk, dan transaksi.
+3. Menyediakan fitur checkout pembelian langsung dari landing page.
+4. Menerapkan metode pembayaran COD, Transfer Bank, dan QRIS Simulasi.
+5. Menerapkan status transaksi Pending dan Selesai berdasarkan metode pembayaran.
+6. Membuat proses ETL dari database operasional ke data warehouse.
+7. Menerapkan model Star Schema pada sistem data warehouse toko sepatu.
+8. Menampilkan laporan dan ranking produk berdasarkan data transaksi yang sudah selesai.
 
 ---
 
 ## Fitur Utama
 
-### 1. Landing Page
+### 1. Landing Page User
 
-Landing page digunakan sebagai halaman awal untuk memperkenalkan sistem data warehouse toko sepatu.
+Landing page digunakan sebagai halaman utama untuk pembeli. Tampilan landing page dibuat sesuai dengan kebutuhan user toko sepatu, sehingga pembeli dapat melihat produk, mengetahui produk terlaris, membaca testimoni, dan melakukan pembelian secara langsung.
 
 Fitur landing page meliputi:
 
 * Beranda.
-* Fitur sistem.
-* Alur sistem.
-* Star Schema.
-* Preview laporan.
-* Login admin.
-* Ringkasan data dinamis dari database.
-* Grafik dan tabel monitoring performa toko.
+* Katalog produk sepatu.
+* Filter produk berdasarkan kategori dan merek.
+* Detail produk.
+* Tombol Beli Sekarang.
+* Modal checkout pembelian.
+* Ranking produk terlaris.
+* Testimoni pelanggan berjalan.
+* Informasi teknologi yang digunakan.
+* Footer.
 
 ---
 
-### 2. Authentication Admin
+### 2. Checkout Pembelian
 
-Sistem menggunakan Laravel Breeze untuk fitur autentikasi admin.
+User dapat membeli produk langsung dari landing page melalui tombol Beli Sekarang. Setelah tombol ditekan, sistem akan menampilkan modal checkout berisi informasi produk, data pembeli, jumlah pembelian, metode pembayaran, dan total pembayaran.
+
+Data checkout yang diisi pembeli:
+
+* Nama pembeli.
+* Email.
+* Nomor WhatsApp.
+* Jenis kelamin.
+* Alamat.
+* Jumlah pembelian.
+* Metode pembayaran.
+
+Metode pembayaran yang tersedia:
+
+* COD.
+* Transfer Bank.
+* QRIS Simulasi.
+
+Aturan status transaksi:
+
+* COD otomatis masuk dengan status Selesai.
+* Transfer Bank masuk dengan status Pending.
+* QRIS Simulasi masuk dengan status Pending.
+* Transaksi Pending dapat dikonfirmasi oleh admin menjadi Selesai.
+
+Saat checkout berhasil, stok produk akan berkurang sesuai jumlah pembelian.
+
+---
+
+### 3. Authentication Admin
+
+Sistem menggunakan Laravel Breeze untuk autentikasi admin. Halaman admin hanya dapat diakses oleh pengguna yang sudah login.
 
 Fitur authentication meliputi:
 
@@ -74,9 +111,9 @@ Fitur authentication meliputi:
 
 ---
 
-### 3. Dashboard Admin
+### 4. Dashboard Admin
 
-Dashboard digunakan untuk menampilkan ringkasan utama sistem.
+Dashboard admin digunakan untuk menampilkan ringkasan utama sistem. Dashboard membantu admin melihat kondisi toko secara ringkas berdasarkan data yang tersimpan pada sistem.
 
 Informasi yang ditampilkan:
 
@@ -92,9 +129,9 @@ Informasi yang ditampilkan:
 
 ---
 
-### 4. CRUD Data Operasional
+### 5. CRUD Data Operasional
 
-Sistem menyediakan fitur CRUD untuk mengelola data operasional toko sepatu.
+Sistem menyediakan fitur CRUD untuk mengelola data operasional toko sepatu. Data operasional ini menjadi sumber utama sebelum diproses ke data warehouse.
 
 Data yang dikelola:
 
@@ -107,15 +144,35 @@ Setiap halaman CRUD dilengkapi dengan fitur pencarian agar admin dapat menemukan
 
 ---
 
-### 5. Proses ETL
+### 6. Data Transaksi dan Konfirmasi Pembayaran
 
-ETL merupakan proses pemindahan data dari database operasional ke data warehouse.
+Menu Data Transaksi digunakan admin untuk melihat dan mengelola transaksi penjualan yang masuk dari landing page maupun dari input admin.
+
+Fitur Data Transaksi meliputi:
+
+* Menampilkan kode transaksi.
+* Menampilkan tanggal transaksi.
+* Menampilkan data pelanggan.
+* Menampilkan produk yang dibeli.
+* Menampilkan jumlah pembelian.
+* Menampilkan total harga.
+* Menampilkan metode pembayaran.
+* Menampilkan badge status Pending dan Selesai.
+* Menampilkan tombol Detail, Edit, Konfirmasi, dan Hapus.
+
+Tombol Konfirmasi hanya muncul pada transaksi dengan status Pending. Setelah admin menekan tombol Konfirmasi, status transaksi berubah menjadi Selesai. Proses konfirmasi menggunakan SweetAlert2 agar perubahan status lebih aman dan jelas.
+
+---
+
+### 7. Proses ETL
+
+ETL merupakan proses pemindahan data dari database operasional ke data warehouse. Proses ini digunakan agar data transaksi dapat dianalisis melalui tabel fakta dan tabel dimensi.
 
 Tahapan ETL:
 
 * Extract: mengambil data dari tabel operasional.
-* Transform: mengubah data menjadi bentuk dimensi dan fakta.
-* Load: memasukkan data ke tabel data warehouse.
+* Transform: mengubah data operasional menjadi data dimensi dan fakta.
+* Load: memasukkan data hasil transformasi ke tabel data warehouse.
 
 Data operasional yang digunakan:
 
@@ -133,13 +190,13 @@ Data hasil ETL disimpan ke:
 * dim_waktus
 * fact_penjualans
 
+Pada sistem ini, proses ETL hanya mengambil transaksi dengan status Selesai. Transaksi dengan status Pending tidak akan masuk ke fact_penjualans sebelum dikonfirmasi oleh admin.
+
 ---
 
-### 6. Data Warehouse
+### 8. Data Warehouse
 
-Data warehouse digunakan untuk menyimpan data hasil ETL agar siap dianalisis.
-
-Model yang digunakan adalah Star Schema.
+Data warehouse digunakan untuk menyimpan data hasil ETL agar siap dianalisis. Model yang digunakan adalah Star Schema, yaitu model data warehouse yang memiliki tabel fakta sebagai pusat analisis dan tabel dimensi sebagai pendukung.
 
 Struktur utama data warehouse:
 
@@ -164,9 +221,9 @@ Tabel dimensi:
 
 ---
 
-### 7. Laporan Analisis
+### 9. Laporan Analisis
 
-Laporan digunakan untuk menampilkan hasil analisis dari data warehouse.
+Laporan digunakan untuk menampilkan hasil analisis dari data warehouse. Data yang ditampilkan pada laporan berasal dari hasil proses ETL, sehingga laporan mengikuti data transaksi yang sudah masuk ke fact_penjualans.
 
 Informasi yang ditampilkan:
 
@@ -187,20 +244,46 @@ Fitur filter laporan:
 
 ---
 
+### 10. Ranking Produk Terlaris
+
+Ranking produk pada landing page diambil dari hasil data warehouse. Ranking ini menampilkan produk sepatu dengan penjualan tertinggi berdasarkan data transaksi yang sudah diproses melalui ETL.
+
+Alur ranking:
+
+```text
+Checkout Pembelian
+        |
+Transaksi Operasional
+        |
+Status Selesai
+        |
+Proses ETL
+        |
+fact_penjualans
+        |
+Ranking Produk Terlaris
+```
+
+Jika transaksi masih berstatus Pending, maka transaksi tersebut belum masuk ke ranking produk.
+
+---
+
 ## Teknologi yang Digunakan
 
-| Teknologi      | Fungsi                                  |
-| -------------- | --------------------------------------- |
-| Laravel        | Framework utama aplikasi web            |
-| PHP            | Bahasa pemrograman backend              |
-| MySQL          | Database operasional dan data warehouse |
-| Blade Template | Template tampilan Laravel               |
-| Laravel Breeze | Authentication admin                    |
-| Vite           | Asset bundling                          |
-| CSS            | Styling tampilan                        |
-| Tailwind CSS   | Utility styling                         |
-| Chart.js       | Visualisasi grafik                      |
-| AOS Animation  | Animasi landing page                    |
+| Teknologi      | Fungsi                                               |
+| -------------- | ---------------------------------------------------- |
+| Laravel        | Framework utama aplikasi web                         |
+| PHP            | Bahasa pemrograman backend                           |
+| MySQL          | Database operasional dan data warehouse              |
+| Blade Template | Template tampilan Laravel                            |
+| Laravel Breeze | Authentication admin                                 |
+| Vite           | Asset bundling                                       |
+| CSS            | Styling tampilan                                     |
+| Tailwind CSS   | Utility styling                                      |
+| JavaScript     | Interaksi landing page dan dashboard                 |
+| Chart.js       | Visualisasi grafik                                   |
+| AOS Animation  | Animasi scroll landing page                          |
+| SweetAlert2    | Alert checkout, hapus data, dan konfirmasi transaksi |
 
 ---
 
@@ -214,13 +297,15 @@ project-laravel/
 ├── database/
 │   ├── migrations/
 │   └── seeders/
+├── public/
+│   ├── images/
+│   └── storage/
 ├── resources/
 │   ├── css/
 │   ├── js/
 │   └── views/
 ├── routes/
 │   └── web.php
-├── public/
 ├── PRD.md
 ├── README.md
 └── .env
@@ -279,7 +364,7 @@ php artisan key:generate
 Buka file `.env`, lalu sesuaikan konfigurasi database:
 
 ```env
-DB_DATABASE=nama_database
+DB_DATABASE=toko_sepatu_dw
 DB_USERNAME=root
 DB_PASSWORD=
 ```
@@ -290,13 +375,19 @@ DB_PASSWORD=
 php artisan migrate --seed
 ```
 
-### 9. Jalankan Server Laravel
+### 9. Buat Storage Link
+
+```bash
+php artisan storage:link
+```
+
+### 10. Jalankan Server Laravel
 
 ```bash
 php artisan serve
 ```
 
-### 10. Jalankan Vite
+### 11. Jalankan Vite
 
 Buka terminal baru, lalu jalankan:
 
@@ -304,7 +395,7 @@ Buka terminal baru, lalu jalankan:
 npm run dev
 ```
 
-### 11. Buka Project di Browser
+### 12. Buka Project di Browser
 
 ```text
 http://127.0.0.1:8000
@@ -314,23 +405,66 @@ http://127.0.0.1:8000
 
 ## Alur Penggunaan Sistem
 
-1. Admin membuka landing page.
-2. Admin login ke dashboard.
-3. Admin mengelola data pelanggan, kategori, produk, dan transaksi.
-4. Admin menjalankan proses ETL.
-5. Sistem memindahkan data operasional ke data warehouse.
-6. Admin melihat data warehouse.
-7. Admin melihat dashboard dan laporan analisis.
-8. Admin dapat memfilter laporan berdasarkan bulan dan tahun.
+### Alur User
+
+1. User membuka landing page.
+2. User melihat daftar produk sepatu.
+3. User memfilter produk berdasarkan kategori atau merek.
+4. User melihat detail produk.
+5. User menekan tombol Beli Sekarang.
+6. User mengisi data checkout.
+7. User memilih metode pembayaran.
+8. Sistem menyimpan transaksi dan mengurangi stok produk.
+
+### Alur Admin
+
+1. Admin login ke dashboard.
+2. Admin mengelola data pelanggan, kategori, produk, dan transaksi.
+3. Admin mengecek transaksi yang masuk.
+4. Admin mengonfirmasi transaksi Pending jika pembayaran sudah dianggap valid.
+5. Admin menjalankan proses ETL.
+6. Sistem memindahkan data transaksi Selesai ke data warehouse.
+7. Admin melihat data warehouse, dashboard, dan laporan analisis.
+8. Ranking produk pada landing page diperbarui berdasarkan hasil ETL.
+
+---
+
+## Alur Status Transaksi
+
+```text
+COD
+ |
+ v
+Selesai
+ |
+ v
+Masuk ETL dan Ranking
+
+Transfer Bank / QRIS Simulasi
+ |
+ v
+Pending
+ |
+ v
+Konfirmasi Admin
+ |
+ v
+Selesai
+ |
+ v
+Masuk ETL dan Ranking
+```
 
 ---
 
 ## Catatan Penggunaan
 
-* Jalankan proses ETL setelah menambah atau mengubah data transaksi agar data warehouse dan laporan ikut diperbarui.
-* Data dashboard dan laporan yang berbasis data warehouse akan mengikuti hasil proses ETL terakhir.
-* Jika stok produk tidak mencukupi, transaksi tidak dapat disimpan dengan status selesai.
-* Pastikan `npm run dev` berjalan agar styling, animasi, dan chart dapat tampil dengan benar.
+* Jalankan proses ETL setelah ada transaksi Selesai agar data warehouse, laporan, dan ranking landing ikut diperbarui.
+* Transaksi Pending tidak akan masuk ke data warehouse sebelum dikonfirmasi admin.
+* Jika stok produk tidak mencukupi, transaksi tidak dapat disimpan.
+* Pastikan `npm run dev` berjalan agar styling, animasi, SweetAlert2, dan chart dapat tampil dengan benar.
+* Pastikan `php artisan storage:link` sudah dijalankan agar gambar produk dari storage dapat tampil.
+* Untuk metode Transfer Bank dan QRIS Simulasi, transaksi akan masuk sebagai Pending dan perlu dikonfirmasi admin.
 
 ---
 
@@ -372,4 +506,4 @@ Project ini dikembangkan oleh:
 
 ## Kesimpulan
 
-Sistem Data Warehouse Toko Sepatu ini dibangun untuk membantu proses pengelolaan data operasional dan analisis penjualan toko sepatu. Dengan adanya proses ETL, model Star Schema, dashboard, grafik, tabel laporan, search, dan filter, sistem ini dapat mendukung pemantauan performa toko secara lebih efektif dan berbasis data.
+ShoeDW adalah sistem toko sepatu berbasis web yang menggabungkan fitur katalog produk, checkout pembelian, manajemen transaksi, proses ETL, data warehouse, dan laporan analisis penjualan. Dengan adanya alur status transaksi, konfirmasi pembayaran, serta proses ETL yang hanya memproses transaksi Selesai, sistem ini dapat menghasilkan data warehouse dan ranking produk yang lebih valid. Sistem ini juga membantu admin dalam memantau performa toko berdasarkan data penjualan yang telah diproses.

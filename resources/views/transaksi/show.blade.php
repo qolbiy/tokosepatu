@@ -34,10 +34,44 @@
             <strong>{{ $transaksi->pelanggan->nama_pelanggan ?? '-' }}</strong>
         </div>
 
-        <div class="detail-item">
-            <span>Status</span>
-            <strong>{{ $transaksi->status }}</strong>
-        </div>
+       <div class="detail-item">
+    <span>Status</span>
+
+    @php
+        $statusClass = match ($transaksi->status) {
+            'Selesai' => 'selesai',
+            'Pending' => 'pending',
+            default => 'default',
+        };
+    @endphp
+
+    <strong>
+        <span class="status-badge {{ $statusClass }}">
+            {{ $transaksi->status }}
+        </span>
+    </strong>
+</div>
+<div class="detail-item">
+    <span>Metode Pembayaran</span>
+
+    @php
+        $metodePembayaran = $transaksi->metode_pembayaran ?? '-';
+
+        $paymentClass = match ($metodePembayaran) {
+            'COD' => 'cod',
+            'Transfer Bank' => 'transfer',
+            'QRIS Simulasi' => 'qris',
+            default => 'default',
+        };
+    @endphp
+
+    <strong>
+        <span class="payment-badge {{ $paymentClass }}">
+            {{ $metodePembayaran }}
+        </span>
+    </strong>
+</div>
+        
 
         <div class="detail-item">
             <span>Produk</span>

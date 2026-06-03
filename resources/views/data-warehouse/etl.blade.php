@@ -51,7 +51,7 @@
             <p>Jumlah data yang sudah masuk ke tabel fakta.</p>
         </div>
     </div>
-
+<!--
     <div class="dashboard-overview">
         <div class="dashboard-chart-card">
             <div class="admin-section-title">
@@ -122,6 +122,7 @@
             </div>
         </div>
     </div>
+-->
 </section>
 
 <!-- Tambahkan SweetAlert2 -->

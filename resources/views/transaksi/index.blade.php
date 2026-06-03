@@ -77,6 +77,7 @@
                     <th>Produk</th>
                     <th>Jumlah</th>
                     <th>Total</th>
+                    <th>Pembayaran</th>
                     <th>Status</th>
                     <th>Aksi</th>
                 </tr>
@@ -91,23 +92,66 @@
                     <td>{{ $transaksi->pelanggan->nama_pelanggan ?? '-' }}</td>
                     <td>{{ $transaksi->detailTransaksi->produk->nama_produk ?? '-' }}</td>
                     <td>{{ $transaksi->detailTransaksi->jumlah ?? 0 }}</td>
-                    <td>Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
-                    <td>{{ $transaksi->status }}</td>
+                    <td>
+                        Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}
+                    </td>
+                    <td>
+                        @php
+                        $metodePembayaran = $transaksi->metode_pembayaran ?? '-';
+
+                        $paymentClass = match ($metodePembayaran) {
+                        'COD' => 'cod',
+                        'Transfer Bank' => 'transfer',
+                        'QRIS Simulasi' => 'qris',
+                        default => 'default',
+                        };
+                        @endphp
+
+                        <span class="payment-badge {{ $paymentClass }}">
+                            {{ $metodePembayaran }}
+                        </span>
+                    </td>
+
+                    <td>
+                        @php
+                        $statusClass = match ($transaksi->status) {
+                        'Selesai' => 'selesai',
+                        'Pending' => 'pending',
+                        default => 'default',
+                        };
+                        @endphp
+
+                        <span class="status-badge {{ $statusClass }}">
+                            {{ $transaksi->status }}
+                        </span>
+                    </td>
 
                     <td>
                         <div class="action-buttons">
-                            <a href="{{ route('transaksi.show', $transaksi->id) }}" class="btn-detail">Detail</a>
-                            <a href="{{ route('transaksi.edit', $transaksi->id) }}" class="btn-edit">Edit</a>
+                            <a href="{{ route('transaksi.show', $transaksi->id) }}" class="btn-detail">
+                                Detail
+                            </a>
 
-                            <form 
-                                action="{{ route('transaksi.destroy', $transaksi->id) }}" 
-                                method="POST" 
-                                class="delete-transaksi-form" 
-                                data-kode="{{ $transaksi->kode_transaksi }}"
-                            >
+                            <a href="{{ route('transaksi.edit', $transaksi->id) }}" class="btn-edit">
+                                Edit
+                            </a>
+
+                            @if ($transaksi->status === 'Pending')
+                            <form action="{{ route('transaksi.konfirmasi', $transaksi->id) }}" method="POST" class="confirm-form">
+                                @csrf
+                                @method('PATCH')
+
+                                <button type="submit" class="btn-confirm">
+                                    Konfirmasi
+                                </button>
+                            </form>
+                            @endif
+
+                            <form action="{{ route('transaksi.destroy', $transaksi->id) }}" method="POST" class="delete-form">
                                 @csrf
                                 @method('DELETE')
-                                <button type="button" class="btn-delete delete-transaksi-button">
+
+                                <button type="submit" class="btn-delete">
                                     Hapus
                                 </button>
                             </form>
@@ -116,7 +160,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" class="empty-table">Belum ada data transaksi.</td>
+                    <td colspan="10" class="empty-table">Belum ada data transaksi.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -130,31 +174,31 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const deleteButtons = document.querySelectorAll('.delete-transaksi-button');
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-transaksi-button');
 
-    deleteButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            const form = button.closest('.delete-transaksi-form');
-            const kodeTransaksi = form.dataset.kode || 'transaksi ini';
+        deleteButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                const form = button.closest('.delete-transaksi-form');
+                const kodeTransaksi = form.dataset.kode || 'transaksi ini';
 
-            Swal.fire({
-                title: 'Hapus Transaksi?',
-                text: 'Transaksi "' + kodeTransaksi + '" akan dihapus dari sistem.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Hapus',
-                cancelButtonText: 'Batal',
-                reverseButtons: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#64748b'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
+                Swal.fire({
+                    title: 'Hapus Transaksi?',
+                    text: 'Transaksi "' + kodeTransaksi + '" akan dihapus dari sistem.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
             });
         });
     });
-});
 </script>
 @endsection

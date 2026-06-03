@@ -11,7 +11,7 @@
 </head>
 
 <body>
-
+    <!--
     <div id="landingPreloader" class="landing-preloader">
         <div class="preloader-simple-content">
             <img
@@ -26,6 +26,7 @@
             <p>Loading<span>.</span><span>.</span><span>.</span></p>
         </div>
     </div>
+    -->
 
     <header class="navbar">
         <a href="#home" class="brand">
@@ -43,10 +44,10 @@
 
         <nav class="nav-menu" id="navMenu">
             <a href="#home">Beranda</a>
-            <a href="#fitur">Fitur</a>
-            <a href="#alur">Alur Sistem</a>
-            <a href="#schema">Star Schema</a>
-            <a href="#laporan">Laporan</a>
+            <a href="#produk">Produk</a>
+            <a href="#ranking">Ranking</a>
+            <a href="#testimoni">Testimoni</a>
+
         </nav>
 
         @auth
@@ -66,24 +67,24 @@
             <div data-aos="fade-up">
                 <div class="hero-content">
                     <span class="hero-badge">
-                        Platform Data Warehouse Toko Sepatu
+                        Toko Sepatu Online Berbasis Web
                     </span>
 
                     <h1>
-                        Pantau Performa
-                        <span>Toko Sepatu</span>
-                        dengan Data Warehouse
+                        Temukan Sepatu
+                        <span>Favoritmu</span>
+                        dengan Mudah
                     </h1>
 
                     <p>
-                        Sistem berbasis Laravel yang dirancang untuk mengelola data operasional,
-                        menjalankan proses ETL, menerapkan Star Schema, serta menyajikan laporan
-                        analisis penjualan dalam bentuk tabel dan grafik.
+                        ShoeDW menghadirkan berbagai pilihan sepatu dengan informasi produk
+                        yang jelas, stok yang mudah dilihat, serta proses pembelian yang praktis
+                        melalui halaman katalog online.
                     </p>
 
                     <div class="hero-actions">
-                        <a href="#fitur" class="btn-primary">Mulai Jelajahi</a>
-                        <a href="#schema" class="btn-secondary">Lihat Schema</a>
+                        <a href="#produk" class="btn-primary">Lihat Produk</a>
+                        <a href="#ranking" class="btn-secondary">Produk Terlaris</a>
                     </div>
 
                     <div class="hero-stats">
@@ -163,12 +164,16 @@
 
                                 <div class="product-preview-stat">
                                     <span>Harga Jual</span>
-                                    <strong>Rp {{ number_format($produkTerlaris->harga_jual ?? 0, 0, ',', '.') }}</strong>
+                                    <strong>
+                                        Rp {{ number_format($produkTerlaris->harga_jual ?? 0, 0, ',', '.') }}
+                                    </strong>
                                 </div>
 
                                 <div class="product-preview-stat full">
                                     <span>Total Pendapatan</span>
-                                    <strong>Rp {{ number_format($produkTerlaris->total_pendapatan ?? 0, 0, ',', '.') }}</strong>
+                                    <strong>
+                                        Rp {{ number_format($produkTerlaris->total_pendapatan ?? 0, 0, ',', '.') }}
+                                    </strong>
                                 </div>
                             </div>
                         </div>
@@ -177,321 +182,499 @@
             </div>
         </section>
 
-        <section id="fitur" class="section">
+        <section id="produk" class="section product-shop-section">
             <div data-aos="fade-up">
                 <div class="section-heading">
-                    <span>Fitur Utama</span>
-                    <h2>Fitur Website Data Warehouse</h2>
+                    <span>Produk</span>
+                    <h2>Produk Sepatu Pilihan</h2>
                     <p>
-                        Website ini dirancang untuk mendukung proses pengelolaan data,
-                        ETL, penyimpanan data warehouse, dan penyajian laporan analisis.
+                        Temukan sepatu sesuai kebutuhan dengan pilihan kategori, merek,
+                        warna, harga, dan informasi stok yang tersedia secara langsung.
                     </p>
                 </div>
             </div>
 
-            <div class="feature-grid">
-                <div data-aos="fade-up">
-                    <div class="feature-card">
-                        <div class="feature-code">DO</div>
-                        <h3>Data Operasional</h3>
-                        <p>
-                            Mengelola data produk sepatu, kategori, pelanggan, transaksi,
-                            dan detail transaksi sebagai sumber data utama.
-                        </p>
-                    </div>
-                </div>
+            {{-- Filter Produk Landing --}}
+            <div class="product-filter-bar" data-aos="fade-up">
+                <form action="{{ route('landing') }}#produk" method="GET" class="product-filter-form" id="productFilterForm">
+                    <div class="product-filter-item">
+                        <label for="kategori">Kategori</label>
+                        <select name="kategori" id="kategori">
+                            <option value="">Semua Kategori</option>
 
-                <div data-aos="fade-up" data-aos-delay="100">
-                    <div class="feature-card">
-                        <div class="feature-code">TR</div>
-                        <h3>Data Transaksi</h3>
-                        <p>
-                            Mencatat jumlah pembelian, harga produk, total pembayaran,
-                            dan tanggal transaksi penjualan sepatu.
-                        </p>
+                            @foreach ($kategoriFilterLanding as $kategori)
+                            <option
+                                value="{{ $kategori->id }}"
+                                {{ request('kategori') == $kategori->id ? 'selected' : '' }}>
+                                {{ $kategori->nama_kategori }}
+                            </option>
+                            @endforeach
+                        </select>
                     </div>
-                </div>
 
-                <div data-aos="fade-up" data-aos-delay="200">
-                    <div class="feature-card">
-                        <div class="feature-code">ETL</div>
-                        <h3>Proses ETL</h3>
-                        <p>
-                            Mengambil, membersihkan, mengubah, dan memindahkan data
-                            operasional ke dalam data warehouse.
-                        </p>
+                    <div class="product-filter-item">
+                        <label for="merek">Merek</label>
+                        <select name="merek" id="merek">
+                            <option value="">Semua Merek</option>
+
+                            @foreach ($merekFilterLanding as $itemMerek)
+                            <option
+                                value="{{ $itemMerek }}"
+                                {{ request('merek') == $itemMerek ? 'selected' : '' }}>
+                                {{ $itemMerek }}
+                            </option>
+                            @endforeach
+                        </select>
                     </div>
-                </div>
 
-                <div data-aos="fade-up" data-aos-delay="300">
-                    <div class="feature-card">
-                        <div class="feature-code">DW</div>
-                        <h3>Data Warehouse</h3>
-                        <p>
-                            Menyimpan data hasil ETL ke dalam tabel dimensi dan tabel fakta
-                            agar siap digunakan untuk analisis.
-                        </p>
+                    <div class="product-filter-action">
+                        <button type="submit" class="btn-filter-apply">
+                            Terapkan
+                        </button>
+
+                        <a
+                            href="{{ route('landing') }}#produk"
+                            class="btn-filter-reset"
+                            id="productFilterReset">
+                            Reset
+                        </a>
                     </div>
-                </div>
-
-                <div data-aos="fade-up" data-aos-delay="400">
-                    <div class="feature-card">
-                        <div class="feature-code">SC</div>
-                        <h3>Star Schema</h3>
-                        <p>
-                            Menerapkan fact penjualan sebagai pusat analisis yang terhubung
-                            dengan tabel dimensi.
-                        </p>
-                    </div>
-                </div>
-
-                <div data-aos="fade-up" data-aos-delay="500">
-                    <div class="feature-card">
-                        <div class="feature-code">RP</div>
-                        <h3>Laporan Analisis</h3>
-                        <p>
-                            Menampilkan laporan produk terlaris, kategori terlaris,
-                            pendapatan, dan penjualan bulanan.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="alur" class="section flow-section">
-            <div data-aos="fade-up">
-                <div class="section-heading">
-                    <span>Alur Sistem</span>
-                    <h2>Alur Kerja Sistem</h2>
-                    <p>
-                        Proses sistem dimulai dari input data operasional sampai menjadi
-                        laporan analisis yang siap digunakan untuk pemantauan toko.
-                    </p>
-                </div>
+                </form>
             </div>
 
-            <div class="flow-grid">
-                <div data-aos="fade-up">
-                    <div class="flow-card">
-                        <span>01</span>
-                        <h3>Input Data</h3>
-                        <p>Admin mengelola data produk, kategori, pelanggan, dan transaksi.</p>
+            <div class="shop-product-grid">
+                @forelse ($produkLanding as $produk)
+                @php
+                $fotoProduk = !empty($produk->foto)
+                ? asset('storage/produk/' . $produk->foto)
+                : asset('storage/produk/default-shoe.jpg');
+                @endphp
+
+                <div
+                    class="shop-product-card {{ $loop->index >= 8 ? 'product-hidden' : '' }}"
+                    data-aos="fade-up"
+                    data-aos-delay="{{ ($loop->index % 8) * 80 }}">
+
+                    <div class="shop-product-image">
+                        <img
+                            src="{{ $fotoProduk }}"
+                            alt="{{ $produk->nama_produk }}"
+                            loading="lazy">
                     </div>
-                </div>
 
-                <div data-aos="fade-up" data-aos-delay="100">
-                    <div class="flow-card">
-                        <span>02</span>
-                        <h3>Proses ETL</h3>
-                        <p>Sistem melakukan extract, transform, dan load data operasional.</p>
-                    </div>
-                </div>
+                    <div class="shop-product-content">
+                        <span class="shop-product-category">
+                            {{ $produk->kategori->nama_kategori ?? 'Kategori' }}
+                        </span>
 
-                <div data-aos="fade-up" data-aos-delay="200">
-                    <div class="flow-card">
-                        <span>03</span>
-                        <h3>Data Warehouse</h3>
-                        <p>Data disimpan ke tabel dimensi dan fakta menggunakan Star Schema.</p>
-                    </div>
-                </div>
+                        <h3>{{ $produk->nama_produk }}</h3>
 
-                <div data-aos="fade-up" data-aos-delay="300">
-                    <div class="flow-card">
-                        <span>04</span>
-                        <h3>Analisis Data</h3>
-                        <p>Data dianalisis berdasarkan waktu, produk, kategori, dan pelanggan.</p>
-                    </div>
-                </div>
-
-                <div data-aos="fade-up" data-aos-delay="400">
-                    <div class="flow-card">
-                        <span>05</span>
-                        <h3>Laporan</h3>
-                        <p>Hasil analisis ditampilkan dalam tabel dan grafik interaktif.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="schema" class="section">
-            <div data-aos="fade-up">
-                <div class="section-heading">
-                    <span>Star Schema</span>
-                    <h2>Model Data Warehouse</h2>
-                    <p>
-                        Fact penjualan menjadi pusat data yang terhubung dengan beberapa
-                        tabel dimensi untuk memudahkan proses analisis.
-                    </p>
-                </div>
-            </div>
-
-            <div data-aos="zoom-in">
-                <div class="schema-wrapper">
-                    <div class="schema-dim">dim_produk</div>
-                    <div class="schema-dim">dim_pelanggan</div>
-                    <div class="schema-fact">
-                        fact_penjualan
-                        <small>qty, harga, total, pendapatan</small>
-                    </div>
-                    <div class="schema-dim">dim_waktu</div>
-                    <div class="schema-dim">dim_kategori</div>
-                </div>
-            </div>
-        </section>
-
-        <section id="laporan" class="section">
-            <div data-aos="fade-up">
-                <div class="section-heading">
-                    <span>Laporan Analisis</span>
-                    <h2>Monitoring Performa Toko</h2>
-                    <p>
-                        Laporan divisualisasikan menggunakan Chart.js agar performa toko
-                        mudah dipantau melalui grafik dan tabel.
-                    </p>
-                </div>
-            </div>
-
-            <div class="report-grid">
-                <div data-aos="fade-right">
-                    <div class="report-card">
-                        <h3>Penjualan Bulanan</h3>
-                        <p class="report-desc">
-                            Grafik pendapatan penjualan berdasarkan bulan dari hasil data warehouse.
+                        <p>
+                            {{ $produk->merek ?? 'Merek tidak tersedia' }} •
+                            {{ $produk->warna ?? 'Warna tidak tersedia' }}
                         </p>
 
-                        <div class="chart-box">
-                            <canvas id="salesChart"></canvas>
+                        <div class="shop-product-meta">
+                            <strong>
+                                Rp {{ number_format($produk->harga_jual, 0, ',', '.') }}
+                            </strong>
 
-                            <div
-                                id="landingSalesChartData"
-                                data-labels='{{ $labelPendapatanLanding->toJson() }}'
-                                data-values='{{ $dataPendapatanLanding->toJson() }}'></div>
+                            @if ($produk->stok <= 0)
+                                <span class="stock-badge danger">Habis</span>
+                                @elseif ($produk->stok <= 5)
+                                    <span class="stock-badge warning">{{ $produk->stok }} tersisa</span>
+                                    @else
+                                    <span class="stock-badge success">Stok {{ $produk->stok }}</span>
+                                    @endif
+                        </div>
+
+                        <div class="shop-product-actions">
+                            <a href="{{ route('landing.produk.show', $produk->id) }}" class="btn-product-detail">
+                                Detail
+                            </a>
+
+                            @if ($produk->stok > 0)
+                            <button
+                                type="button"
+                                class="btn-product-buy js-checkout-button"
+                                data-id="{{ $produk->id }}"
+                                data-nama="{{ $produk->nama_produk }}"
+                                data-merek="{{ $produk->merek ?? 'Merek tidak tersedia' }}"
+                                data-harga="{{ $produk->harga_jual }}"
+                                data-stok="{{ $produk->stok }}"
+                                data-foto="{{ $fotoProduk }}">
+                                Beli Sekarang
+                            </button>
+                            @else
+                            <button type="button" class="btn-product-disabled" disabled>
+                                Stok Habis
+                            </button>
+                            @endif
                         </div>
                     </div>
                 </div>
-
-                <div data-aos="fade-left">
-                    <div class="report-card">
-                        <h3>Kategori Terlaris</h3>
-                        <p class="report-desc">
-                            Grafik kategori sepatu dengan jumlah penjualan tertinggi.
-                        </p>
-
-                        <div class="chart-box">
-                            <canvas id="categoryChart"></canvas>
-
-                            <div
-                                id="landingCategoryChartData"
-                                data-labels='{{ $labelKategoriLanding->toJson() }}'
-                                data-values='{{ $dataKategoriLanding->toJson() }}'></div>
-                        </div>
-                    </div>
+                @empty
+                <div class="empty-product-message">
+                    <h3>Produk tidak ditemukan</h3>
+                    <p>
+                        Coba gunakan kategori atau merek lain untuk menampilkan produk yang sesuai.
+                    </p>
                 </div>
+                @endforelse
             </div>
 
-            <div data-aos="fade-up">
-                <div class="table-card popular-product-card">
-                    <div class="popular-product-header">
-                        <div>
-                            <span>Produk Terlaris</span>
-                            <h3>Produk dengan Penjualan Tertinggi</h3>
+            @if ($produkLanding->count() > 8)
+            <div class="product-toggle-wrapper">
+                <button type="button" class="product-toggle-button" id="productToggleButton">
+                    Lihat Semua Produk
+                </button>
+            </div>
+            @endif
+        </section>
+
+        {{-- Modal Checkout Produk --}}
+        <div class="checkout-modal" id="checkoutModal" aria-hidden="true">
+            <div class="checkout-modal-overlay"></div>
+
+            <div class="checkout-modal-box">
+                <button type="button" class="checkout-modal-close" id="checkoutModalClose">
+                    ×
+                </button>
+
+                <div class="checkout-modal-header">
+                    <span>Checkout Produk</span>
+                    <h3>Konfirmasi Pembelian</h3>
+                    <p>
+                        Isi data pembelian dengan benar sebelum melanjutkan proses checkout.
+                    </p>
+                </div>
+
+                <div class="checkout-product-preview">
+                    <div class="checkout-product-image">
+                        <img
+                            src="{{ asset('storage/produk/default-shoe.jpg') }}"
+                            alt="Preview Produk"
+                            id="checkoutProductImage">
+                    </div>
+
+                    <div class="checkout-product-info">
+                        <h4 id="checkoutProductName">Nama Produk</h4>
+                        <p id="checkoutProductBrand">Merek Produk</p>
+                        <strong id="checkoutProductPrice">Rp 0</strong>
+                        <span id="checkoutProductStock">Stok 0</span>
+                    </div>
+                </div>
+
+                <form
+                    class="checkout-form"
+                    id="checkoutForm"
+                    action="{{ route('landing.checkout.simpan') }}"
+                    method="POST">
+                    @csrf
+
+                    <input type="hidden" name="produk_id" id="checkoutProductId">
+
+                    <div class="checkout-form-group">
+                        <label for="checkoutCustomerName">Nama Pembeli</label>
+                        <input
+                            type="text"
+                            name="nama_pelanggan"
+                            id="checkoutCustomerName"
+                            placeholder="Masukkan nama pembeli"
+                            autocomplete="name">
+                    </div>
+
+                    <div class="checkout-form-group">
+                        <label for="checkoutCustomerEmail">Email</label>
+                        <input
+                            type="email"
+                            name="email"
+                            id="checkoutCustomerEmail"
+                            placeholder="Contoh: pelanggan@email.com"
+                            autocomplete="email">
+                    </div>
+
+                    <div class="checkout-form-group">
+                        <label for="checkoutCustomerPhone">Nomor WhatsApp</label>
+                        <input
+                            type="text"
+                            name="no_hp"
+                            id="checkoutCustomerPhone"
+                            placeholder="Contoh: 081234567890"
+                            autocomplete="tel">
+                    </div>
+
+                    <div class="checkout-form-group">
+                        <label for="checkoutCustomerGender">Jenis Kelamin</label>
+                        <select
+                            name="jenis_kelamin"
+                            id="checkoutCustomerGender"
+                            autocomplete="sex">
+                            <option value="">Pilih jenis kelamin</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+
+                    <div class="checkout-form-group">
+                        <label for="checkoutCustomerAddress">Alamat</label>
+                        <textarea
+                            name="alamat"
+                            id="checkoutCustomerAddress"
+                            rows="3"
+                            placeholder="Masukkan alamat pembeli"
+                            autocomplete="street-address"></textarea>
+                    </div>
+
+                    <div class="checkout-form-row">
+                        <div class="checkout-form-group">
+                            <label for="checkoutQuantity">Jumlah</label>
+                            <input
+                                type="number"
+                                name="jumlah"
+                                id="checkoutQuantity"
+                                value="1"
+                                min="1">
+                        </div>
+
+                        <div class="checkout-form-group">
+                            <label for="checkoutPayment">Metode Pembayaran</label>
+                            <select name="metode_pembayaran" id="checkoutPayment">
+                                <option value="COD">COD - Bayar di Tempat</option>
+                                <option value="Transfer Bank">Transfer Bank</option>
+                                <option value="QRIS Simulasi">QRIS Simulasi</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="checkout-payment-info" id="checkoutPaymentInfo">
+                        <div class="payment-info-item active" data-payment-info="COD">
+                            <div class="payment-info-header">
+                                <span>COD</span>
+                                <strong>Bayar di Tempat</strong>
+                            </div>
+
                             <p>
-                                Data produk terlaris diambil dari hasil proses ETL pada data warehouse.
+                                Pembayaran dilakukan secara langsung saat produk diterima oleh pembeli.
+                                Pesanan dengan metode COD akan langsung diproses sebagai transaksi selesai.
                             </p>
                         </div>
 
-                        <a href="{{ route('laporan.index') }}" class="table-card-link">
-                            Lihat Laporan
-                        </a>
+                        <div class="payment-info-item" data-payment-info="Transfer Bank">
+                            <div class="payment-info-header">
+                                <span>Transfer</span>
+                                <strong>Transfer Bank</strong>
+                            </div>
+
+                            <p>
+                                Pembayaran dilakukan melalui transfer bank. Setelah pesanan dibuat,
+                                transaksi akan menunggu konfirmasi admin sebelum diproses lebih lanjut.
+                            </p>
+
+                            <div class="bank-info-box">
+                                <span>Rekening Tujuan</span>
+                                <strong>BCA 1234567890</strong>
+                                <small>a.n. ShoeDW Ups Tegal</small>
+                            </div>
+                        </div>
+
+                        <div class="payment-info-item" data-payment-info="QRIS Simulasi">
+                            <div class="payment-info-header">
+                                <span>QRIS</span>
+                                <strong>QRIS Simulasi</strong>
+                            </div>
+
+                            <p>
+                                Pembayaran menggunakan QRIS simulasi. Setelah checkout dilakukan,
+                                transaksi akan menunggu konfirmasi admin terlebih dahulu.
+                            </p>
+
+                            <div class="qris-preview-box">
+                                <img
+                                    src="{{ asset('images/payment/qris-shoedw.jpeg') }}"
+                                    alt="QRIS ShoeDW"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+
+                                <small style="display: none;">
+                                    Gambar QRIS belum tersedia. Simpan QRIS di public/images/payment/qris-shoedw.jpeg
+                                </small>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="popular-product-chart">
-                        <canvas id="landingPopularProductChart"></canvas>
-
-                        <div
-                            id="landingPopularProductChartData"
-                            data-labels='{{ $labelProdukTerlarisLanding->toJson() }}'
-                            data-values='{{ $dataProdukTerlarisLanding->toJson() }}'></div>
+                    <div class="checkout-total-box">
+                        <span>Total Pembayaran</span>
+                        <strong id="checkoutTotalPrice">Rp 0</strong>
                     </div>
 
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Ranking</th>
-                                    <th>Foto</th>
-                                    <th>Nama Produk</th>
-                                    <th>Kategori</th>
-                                    <th>Total Terjual</th>
-                                    <th>Total Pendapatan</th>
-                                </tr>
-                            </thead>
+                    <button type="button" class="checkout-submit-button" id="checkoutSubmitButton">
+                        Lanjutkan Pembelian
+                    </button>
+                </form>
+            </div>
+        </div>
 
-                            <tbody>
-                                @forelse ($produkTerlarisLanding as $produk)
-                                <tr>
-                                    <td>
-                                        <span class="rank-badge">
-                                            {{ $loop->iteration }}
-                                        </span>
-                                    </td>
+        <section id="ranking" class="section ranking-section">
+            <div data-aos="fade-up">
+                <div class="section-heading">
+                    <span>Ranking Penjualan</span>
+                    <h2>Produk dengan Penjualan Tertinggi</h2>
+                    <p>
+                        Lihat daftar produk sepatu yang paling banyak dibeli pelanggan
+                        berdasarkan data penjualan yang telah diproses oleh sistem.
+                    </p>
+                </div>
+            </div>
 
-                                    <td>
-                                        @php
-                                        $fotoProduk = !empty($produk->foto)
-                                        ? asset('storage/produk/' . $produk->foto)
-                                        : asset('storage/produk/default-shoe.jpg');
-                                        @endphp
-
-                                        <img
-                                            src="{{ $fotoProduk }}"
-                                            alt="{{ $produk->nama_produk }}"
-                                            class="landing-table-product-img"
-                                            loading="lazy">
-                                    </td>
-
-                                    <td>
-                                        <strong class="product-name">
-                                            {{ $produk->nama_produk }}
-                                        </strong>
-                                    </td>
-
-                                    <td>
-                                        <span class="category-pill">
-                                            {{ $produk->nama_kategori }}
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        {{ $produk->total_terjual }} Produk
-                                    </td>
-
-                                    <td>
-                                        Rp {{ number_format($produk->total_pendapatan, 0, ',', '.') }}
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="6" class="empty-table">
-                                        Belum ada data produk terlaris. Jalankan proses ETL terlebih dahulu.
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+            <div class="ranking-wrapper" data-aos="fade-up">
+                <div class="ranking-header">
+                    <div>
+                        <h3>Top Produk Terlaris</h3>
+                        <p>
+                            Daftar ini membantu pembeli mengetahui produk sepatu yang paling
+                            diminati dan sering terjual.
+                        </p>
                     </div>
+                </div>
+
+                <div class="ranking-list">
+                    @forelse ($produkTerlarisLanding as $produkRanking)
+                    @php
+                    $fotoProdukRanking = !empty($produkRanking->foto)
+                    ? asset('storage/produk/' . $produkRanking->foto)
+                    : asset('storage/produk/default-shoe.jpg');
+                    @endphp
+
+                    <div class="ranking-item" data-aos="fade-up" data-aos-delay="{{ $loop->index * 80 }}">
+                        <div class="ranking-number">
+                            {{ $loop->iteration }}
+                        </div>
+
+                        <div class="ranking-image">
+                            <img
+                                src="{{ $fotoProdukRanking }}"
+                                alt="{{ $produkRanking->nama_produk }}"
+                                loading="lazy">
+                        </div>
+
+                        <div class="ranking-info">
+                            <h4>{{ $produkRanking->nama_produk }}</h4>
+                            <span>{{ $produkRanking->nama_kategori }}</span>
+                        </div>
+
+                        <div class="ranking-sales">
+                            <span>Total Terjual</span>
+                            <strong>{{ $produkRanking->total_terjual }} Produk</strong>
+                        </div>
+
+                        <div class="ranking-income">
+                            <span>Total Pendapatan</span>
+                            <strong>
+                                Rp {{ number_format($produkRanking->total_pendapatan, 0, ',', '.') }}
+                            </strong>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="empty-product-message">
+                        Belum ada data ranking penjualan. Jalankan proses ETL terlebih dahulu.
+                    </div>
+                    @endforelse
                 </div>
             </div>
         </section>
     </main>
 
-    <section class="tech-section" data-aos="fade-up">
+    {{-- Section Testimoni --}}
+    <section id="testimoni" class="section testimonial-section">
+        <div data-aos="fade-up">
+            <div class="section-heading">
+                <span>Testimoni</span>
+                <h2>Apa Kata Pelanggan ShoeDW</h2>
+                <p>
+                    Ulasan dari pelanggan yang telah melakukan pembelian sepatu
+                    melalui sistem ShoeDW.
+                </p>
+            </div>
+        </div>
+
+        @php
+        $reviewPelanggan = [
+        'Proses pembelian sepatu di ShoeDW sangat mudah, tampilan produknya jelas, dan stok barang terlihat informatif.',
+        'Saya terbantu dengan fitur produk terlaris karena bisa melihat sepatu yang paling banyak diminati pelanggan lain.',
+        'Pilihan produknya rapi, informasi harga mudah dipahami, dan proses checkout berjalan praktis.',
+        'Metode pembayaran yang tersedia cukup jelas, mulai dari COD, Transfer Bank, sampai QRIS Simulasi.',
+        'Tampilan websitenya nyaman digunakan, terutama saat mencari sepatu berdasarkan kategori dan merek.',
+        'Detail produk membantu saya melihat informasi sepatu sebelum melakukan pembelian.',
+        'ShoeDW memudahkan pembeli untuk memilih sepatu tanpa harus bingung melihat stok dan harga.',
+        'Proses transaksi terasa sederhana dan cocok digunakan untuk sistem toko sepatu berbasis web.',
+        ];
+        @endphp
+
+        <div class="testimonial-marquee" data-aos="fade-up">
+            <div class="testimonial-track">
+                @forelse ($testimoniPelanggan as $pelanggan)
+                @php
+                $review = $reviewPelanggan[$loop->index % count($reviewPelanggan)];
+                @endphp
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        ★★★★★
+                    </div>
+
+                    <p>
+                        “{{ $review }}”
+                    </p>
+
+                    <h4>{{ $pelanggan->nama_pelanggan }}</h4>
+                    <span>{{ $pelanggan->alamat ?? 'Pelanggan ShoeDW' }}</span>
+                </div>
+                @empty
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        ★★★★★
+                    </div>
+
+                    <p>
+                        “Belum ada data pelanggan. Testimoni akan tampil setelah
+                        pelanggan melakukan pembelian melalui sistem.”
+                    </p>
+
+                    <h4>Pelanggan ShoeDW</h4>
+                    <span>Data belum tersedia</span>
+                </div>
+                @endforelse
+
+                {{-- Duplikasi agar animasi berjalan mulus --}}
+                @foreach ($testimoniPelanggan as $pelanggan)
+                @php
+                $review = $reviewPelanggan[$loop->index % count($reviewPelanggan)];
+                @endphp
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        ★★★★★
+                    </div>
+
+                    <p>
+                        “{{ $review }}”
+                    </p>
+
+                    <h4>{{ $pelanggan->nama_pelanggan }}</h4>
+                    <span>{{ $pelanggan->alamat ?? 'Pelanggan ShoeDW' }}</span>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <section id="teknologi" class="tech-section" data-aos="fade-up">
         <div class="section-heading" data-aos="fade-up">
             <span>Teknologi</span>
             <h2>Teknologi yang Digunakan</h2>
             <p>
-                Sistem dibangun menggunakan teknologi web modern untuk mendukung
-                pengelolaan data, ETL, data warehouse, dan laporan analisis.
+                ShoeDW dikembangkan menggunakan teknologi web modern untuk mendukung
+                katalog produk, transaksi pembelian, pengelolaan data, dan laporan sistem.
             </p>
         </div>
 
@@ -551,27 +734,27 @@
             <div>
                 <h2>ShoeDW</h2>
                 <p>
-                    Sistem Data Warehouse Toko Sepatu untuk membantu pemantauan
-                    data penjualan, produk, pelanggan, dan laporan analisis toko.
+                    ShoeDW adalah sistem toko sepatu berbasis web yang membantu pembeli
+                    melihat produk, melakukan checkout, dan mengetahui produk terlaris
+                    dengan tampilan yang mudah digunakan.
                 </p>
             </div>
 
             <div>
                 <h3>Menu</h3>
                 <a href="#home">Beranda</a>
-                <a href="#fitur">Fitur</a>
-                <a href="#alur">Alur Sistem</a>
-                <a href="#schema">Star Schema</a>
-                <a href="#laporan">Laporan</a>
+                <a href="#produk">Produk</a>
+                <a href="#ranking">Ranking</a>
+                <a href="#testimoni">Testimoni</a>
+
             </div>
 
             <div>
-                <h3>Fitur Sistem</h3>
-                <a href="#fitur">Data Operasional</a>
-                <a href="#alur">Proses ETL</a>
-                <a href="#schema">Star Schema</a>
-                <a href="#laporan">Laporan Analisis</a>
-                <a href="#laporan">Visualisasi Grafik</a>
+                <h3>Layanan</h3>
+                <a href="#produk">Katalog Produk</a>
+                <a href="#ranking">Produk Terlaris</a>
+                <a href="#produk">Cek Stok Sepatu</a>
+                <a href="#produk">Informasi Harga</a>
             </div>
         </div>
 
@@ -579,6 +762,11 @@
             <p>© 2026 ShoeDW. Sistem Data Warehouse Toko Sepatu.</p>
         </div>
     </footer>
+    <div
+        id="checkoutSessionAlert"
+        data-success="{{ session('success') }}"
+        data-error="{{ session('error') }}">
+    </div>
 </body>
 
 </html>
