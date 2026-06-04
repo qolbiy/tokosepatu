@@ -6,27 +6,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ShoeDW - Data Warehouse Toko Sepatu</title>
 
+    <script>
+        if (sessionStorage.getItem('shoedw_landing_preloader_shown') === 'true') {
+            document.documentElement.classList.add('preloader-skip');
+        }
+    </script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
 </head>
 
 <body>
-    <!--
+
     <div id="landingPreloader" class="landing-preloader">
         <div class="preloader-simple-content">
-            <img
-                src="{{ asset('images/logo/logo-shoedw.png') }}"
-                alt="ShoeDW Logo"
-                class="preloader-logo-img">
+            <div class="preloader-logo-shine">
+                <img
+                    src="{{ asset('images/logo/logo-shoedw-s.png') }}"
+                    alt="ShoeDW Logo"
+                    class="preloader-logo-img">
+            </div>
+
+            <h1 class="preloader-brand-title" aria-label="SHOEDW">
+                <span style="--i: 1">S</span>
+                <span style="--i: 2">H</span>
+                <span style="--i: 3">O</span>
+                <span style="--i: 4">E</span>
+                <span style="--i: 5">D</span>
+                <span style="--i: 6">W</span>
+            </h1>
+
+            <p class="preloader-tagline">
+                Premium Shoes & Sneakers
+            </p>
 
             <div class="preloader-simple-bar">
                 <div class="preloader-simple-fill"></div>
             </div>
-
-            <p>Loading<span>.</span><span>.</span><span>.</span></p>
         </div>
     </div>
-    -->
 
     <header class="navbar">
         <a href="#home" class="brand">
@@ -115,9 +133,9 @@
                         <div class="hero-stat-item">
                             <strong
                                 class="counter-number"
-                                data-target="{{ $totalPendapatan / 1000000 }}"
-                                data-format="currency-million">Rp 0Jt</strong>
-                            <span>Pendapatan</span>
+                                data-target="{{ $totalProdukTerjual }}"
+                                data-format="number">0</strong>
+                            <span>Produk Terjual</span>
                         </div>
                     </div>
                 </div>
@@ -519,7 +537,7 @@
                                 transaksi akan menunggu konfirmasi admin terlebih dahulu.
                             </p>
 
-                            
+
                         </div>
                     </div>
 
@@ -783,12 +801,12 @@
             <p>© 2026 ShoeDW. Sistem Data Warehouse Toko Sepatu.</p>
         </div>
     </footer>
-  <div
-    id="checkoutSessionAlert"
-    data-success="{{ session('success') }}"
-    data-error="{{ session('error') }}"
-    data-validation-error="{{ $errors->first() }}">
-</div>
+    <div
+        id="checkoutSessionAlert"
+        data-success="{{ session('success') }}"
+        data-error="{{ session('error') }}"
+        data-validation-error="{{ $errors->first() }}">
+    </div>
 </body>
 
 </html>

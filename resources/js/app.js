@@ -586,30 +586,47 @@ if (techMarquee && techTrack) {
 }
 
 /* =========================
-   LANDING PRELOADER
+   LANDING PRELOADER CONTROL
    ========================= */
 
 document.addEventListener('DOMContentLoaded', function () {
     const preloader = document.getElementById('landingPreloader');
+    const preloaderKey = 'shoedw_landing_preloader_shown';
 
-    if (preloader) {
-        document.body.classList.add('preloader-active');
-
-        setTimeout(function () {
-            preloader.classList.add('preloader-hide');
-            document.body.classList.remove('preloader-active');
-
-            setTimeout(function () {
-                initHeroCounterAnimation();
-            }, 450);
-        }, 2600);
-
-        setTimeout(function () {
-            preloader.remove();
-        }, 3600);
-    } else {
+    if (!preloader) {
         initHeroCounterAnimation();
+        return;
     }
+
+    const navigationEntry = performance.getEntriesByType('navigation')[0];
+    const navigationType = navigationEntry ? navigationEntry.type : 'navigate';
+
+    const isManualRefresh = navigationType === 'reload';
+    const hasShownPreloader = sessionStorage.getItem(preloaderKey) === 'true';
+
+    const shouldShowPreloader = isManualRefresh || !hasShownPreloader;
+
+    if (!shouldShowPreloader) {
+        preloader.remove();
+        initHeroCounterAnimation();
+        return;
+    }
+
+    document.body.classList.add('preloader-active');
+
+    setTimeout(function () {
+        preloader.classList.add('preloader-hide');
+        document.body.classList.remove('preloader-active');
+        sessionStorage.setItem(preloaderKey, 'true');
+
+        setTimeout(function () {
+            initHeroCounterAnimation();
+        }, 450);
+    }, 3200);
+
+    setTimeout(function () {
+        preloader.remove();
+    }, 4200);
 });
 
 /* =========================

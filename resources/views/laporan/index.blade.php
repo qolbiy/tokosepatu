@@ -55,11 +55,21 @@
                     Terapkan Filter
                 </button>
 
-                @if (!empty($bulan) || !empty($tahun))
+                  @if (!empty($bulan) || !empty($tahun))
                 <a href="{{ route('laporan.index') }}" class="crud-button secondary">
                     Reset
                 </a>
                 @endif
+
+                <a
+                    href="{{ route('laporan.export-pdf', [
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+        ]) }}"
+                    class="crud-button export-pdf-button"
+                    target="_blank">
+                    Export PDF
+                </a>
             </div>
         </div>
     </form>

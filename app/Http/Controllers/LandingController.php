@@ -19,7 +19,7 @@ class LandingController extends Controller
         $totalProduk = Produk::count();
         $totalKategori = Kategori::count();
         $totalTransaksi = Transaksi::count();
-        $totalPendapatan = FactPenjualan::sum('total_harga');
+        $totalProdukTerjual = FactPenjualan::sum('jumlah');
 
         $produkTerlaris = DB::table('fact_penjualans')
             ->join('dim_produks', 'fact_penjualans.dim_produk_id', '=', 'dim_produks.id')
@@ -129,7 +129,7 @@ class LandingController extends Controller
             'totalProduk',
             'totalKategori',
             'totalTransaksi',
-            'totalPendapatan',
+            'totalProdukTerjual',
             'produkTerlaris',
             'produkTerlarisLanding',
             'labelPendapatanLanding',
@@ -143,7 +143,7 @@ class LandingController extends Controller
             'merekFilterLanding',
             'kategoriId',
             'merek',
-            'testimoniPelanggan'
+            'testimoniPelanggan',
         ));
     }
 
