@@ -122,7 +122,7 @@ class LandingController extends Controller
             ->pluck('merek');
 
         $testimoniPelanggan = Pelanggan::latest()
-            ->limit(8)
+            ->limit(15)
             ->get();
 
         return view('landing', compact(

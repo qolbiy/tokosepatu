@@ -525,8 +525,8 @@ const techTrack = document.getElementById('techTrack');
 
 if (techMarquee && techTrack) {
     let position = 0;
-    let speed = 0.35;
-    let targetSpeed = 0.35;
+    let speed = -0.35;
+    let targetSpeed = -0.35;
     let lastMouseX = null;
     let isHovering = false;
 
@@ -579,7 +579,7 @@ if (techMarquee && techTrack) {
     techMarquee.addEventListener('mouseleave', function () {
         isHovering = false;
         lastMouseX = null;
-        targetSpeed = 0.35;
+        targetSpeed = -0.35;
     });
 
     animateTechMarquee();
@@ -1635,4 +1635,96 @@ document.addEventListener('DOMContentLoaded', function () {
 
     countdownInterval = setInterval(updateCountdown, 1000);
     statusInterval = setInterval(checkPaymentStatus, 8000);
+});
+
+/* =========================
+   TESTIMONIAL DRAG CAROUSEL
+   ========================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+    const testimonialScroll = document.getElementById('testimonialScroll');
+    const testimonialPrev = document.getElementById('testimonialPrev');
+    const testimonialNext = document.getElementById('testimonialNext');
+
+    if (!testimonialScroll) {
+        return;
+    }
+
+    let isDragging = false;
+    let startX = 0;
+    let startScrollLeft = 0;
+
+    function scrollTestimonial(direction) {
+        const card = testimonialScroll.querySelector('.testimonial-card');
+        const cardWidth = card ? card.offsetWidth + 18 : 280;
+
+        testimonialScroll.scrollBy({
+            left: direction * cardWidth,
+            behavior: 'smooth',
+        });
+    }
+
+    if (testimonialPrev) {
+        testimonialPrev.addEventListener('click', function () {
+            scrollTestimonial(-1);
+        });
+    }
+
+    if (testimonialNext) {
+        testimonialNext.addEventListener('click', function () {
+            scrollTestimonial(1);
+        });
+    }
+
+    testimonialScroll.addEventListener('mousedown', function (event) {
+        isDragging = true;
+        testimonialScroll.classList.add('dragging');
+
+        startX = event.pageX - testimonialScroll.offsetLeft;
+        startScrollLeft = testimonialScroll.scrollLeft;
+    });
+
+    testimonialScroll.addEventListener('mouseleave', function () {
+        isDragging = false;
+        testimonialScroll.classList.remove('dragging');
+    });
+
+    testimonialScroll.addEventListener('mouseup', function () {
+        isDragging = false;
+        testimonialScroll.classList.remove('dragging');
+    });
+
+    testimonialScroll.addEventListener('mousemove', function (event) {
+        if (!isDragging) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const currentX = event.pageX - testimonialScroll.offsetLeft;
+        const moveDistance = currentX - startX;
+
+        testimonialScroll.scrollLeft = startScrollLeft - moveDistance;
+    });
+
+    testimonialScroll.addEventListener('touchstart', function (event) {
+        isDragging = true;
+        startX = event.touches[0].pageX - testimonialScroll.offsetLeft;
+        startScrollLeft = testimonialScroll.scrollLeft;
+    });
+
+    testimonialScroll.addEventListener('touchmove', function (event) {
+        if (!isDragging) {
+            return;
+        }
+
+        const currentX = event.touches[0].pageX - testimonialScroll.offsetLeft;
+        const moveDistance = currentX - startX;
+
+        testimonialScroll.scrollLeft = startScrollLeft - moveDistance;
+    });
+
+    testimonialScroll.addEventListener('touchend', function () {
+        isDragging = false;
+    });
 });

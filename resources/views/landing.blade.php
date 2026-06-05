@@ -77,6 +77,7 @@
 
     <main>
         <section id="home" class="hero-section">
+        
             <div class="bubble bubble-one"></div>
             <div class="bubble bubble-two"></div>
             <div class="bubble bubble-three"></div>
@@ -624,85 +625,96 @@
     </main>
 
     {{-- Section Testimoni --}}
-    <section id="testimoni" class="section testimonial-section">
-        <div data-aos="fade-up">
-            <div class="section-heading">
-                <span>Testimoni</span>
-                <h2>Apa Kata Pelanggan ShoeDW</h2>
-                <p>
-                    Ulasan dari pelanggan yang telah melakukan pembelian sepatu
-                    melalui sistem ShoeDW.
-                </p>
+    <section id="testimoni" class="testimonial-section">
+        <div class="section-container">
+            <div class="section-heading testimonial-heading">
+                <div>
+                    <span class="section-badge">Testimoni</span>
+                    <h2>Apa Kata Pelanggan</h2>
+                    <p>
+                        Beberapa pengalaman pelanggan setelah melihat produk dan melakukan
+                        pembelian sepatu melalui ShoeDW.
+                    </p>
+                </div>
+
+                <div class="testimonial-nav">
+                    <button type="button" class="testimonial-nav-btn" id="testimonialPrev">
+                        ‹
+                    </button>
+
+                    <button type="button" class="testimonial-nav-btn" id="testimonialNext">
+                        ›
+                    </button>
+                </div>
             </div>
-        </div>
 
-        @php
-        $reviewPelanggan = [
-        'Proses pembelian sepatu di ShoeDW sangat mudah, tampilan produknya jelas, dan stok barang terlihat informatif.',
-        'Saya terbantu dengan fitur produk terlaris karena bisa melihat sepatu yang paling banyak diminati pelanggan lain.',
-        'Pilihan produknya rapi, informasi harga mudah dipahami, dan proses checkout berjalan praktis.',
-        'Metode pembayaran yang tersedia cukup jelas, mulai dari COD, Transfer Bank, sampai QRIS Simulasi.',
-        'Tampilan websitenya nyaman digunakan, terutama saat mencari sepatu berdasarkan kategori dan merek.',
-        'Detail produk membantu saya melihat informasi sepatu sebelum melakukan pembelian.',
-        'ShoeDW memudahkan pembeli untuk memilih sepatu tanpa harus bingung melihat stok dan harga.',
-        'Proses transaksi terasa sederhana dan cocok digunakan untuk sistem toko sepatu berbasis web.',
-        ];
-        @endphp
+            <div class="testimonial-scroll-wrapper">
+                <div class="testimonial-scroll" id="testimonialScroll">
+                    @forelse ($testimoniPelanggan as $pelanggan)
+                    @php
+                    $reviewList = [
+                    'Produk sepatu yang ditampilkan cukup lengkap, informasinya jelas, dan proses checkout mudah dipahami.',
+                    'ShoeDW membantu saya memilih sepatu dengan lebih cepat karena stok, harga, dan kategori produk terlihat jelas.',
+                    'Tampilan katalog produknya rapi, pilihan pembayaran mudah digunakan, dan proses pembelian terasa praktis.',
+                    'Saya terbantu dengan adanya ranking produk terlaris karena bisa melihat sepatu yang paling banyak diminati.',
+                    'Informasi ukuran, harga, dan stok sepatu sangat membantu sebelum saya menentukan produk yang ingin dibeli.',
+                    'Proses pembelian terasa sederhana, tidak membingungkan, dan cocok untuk pelanggan yang ingin belanja cepat.',
+                    'Filter kategori dan merek membuat pencarian sepatu menjadi lebih mudah dan tidak perlu melihat semua produk satu per satu.',
+                    'Detail produk yang tersedia cukup jelas, sehingga saya bisa melihat informasi sepatu sebelum melakukan checkout.',
+                    'Pilihan pembayaran COD, Transfer Bank, dan QRIS Simulasi membuat proses pembelian terasa lebih fleksibel.',
+                    'Saya suka tampilan produknya karena sederhana, bersih, dan informasi penting seperti harga serta stok mudah ditemukan.',
+                    'Fitur produk terlaris membantu saya mengetahui sepatu yang banyak diminati oleh pelanggan lain.',
+                    'Checkout di ShoeDW terasa praktis karena data pembeli, ukuran sepatu, jumlah, dan metode pembayaran sudah tersedia dalam satu form.',
+                    'Halaman pembayaran pending cukup membantu karena menampilkan batas waktu pembayaran dan instruksi pembayaran dengan jelas.',
+                    'ShoeDW membuat proses melihat produk dan melakukan pemesanan sepatu terasa lebih teratur dan mudah digunakan.',
+                    'Secara keseluruhan, tampilan ShoeDW nyaman digunakan dan informasi produknya cukup lengkap untuk membantu pembelian.',
+                    ];
 
-        <div class="testimonial-marquee" data-aos="fade-up">
-            <div class="testimonial-track">
-                @forelse ($testimoniPelanggan as $pelanggan)
-                @php
-                $review = $reviewPelanggan[$loop->index % count($reviewPelanggan)];
-                @endphp
+                    $reviewText = $reviewList[$loop->index % count($reviewList)];
+                    @endphp
 
-                <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        ★★★★★
-                    </div>
+                    <article class="testimonial-card">
+                        <div class="testimonial-quote-icon" aria-label="Ikon testimoni pelanggan">
+                            <span>“</span>
+                        </div>
 
-                    <p>
-                        “{{ $review }}”
-                    </p>
+                        <p>
+                            “{{ $reviewText }}”
+                        </p>
 
-                    <h4>{{ $pelanggan->nama_pelanggan }}</h4>
-                    <span>{{ $pelanggan->alamat ?? 'Pelanggan ShoeDW' }}</span>
+                        <div class="testimonial-user">
+                            <strong>{{ $pelanggan->nama_pelanggan }}</strong>
+                            <span>{{ $pelanggan->alamat ?? 'Pelanggan ShoeDW' }}</span>
+                        </div>
+
+                        <a href="#produk" class="testimonial-link">
+                            Jelajahi
+                            <span>›</span>
+                        </a>
+                    </article>
+                    @empty
+                    <article class="testimonial-card">
+                        <div class="testimonial-icon">
+                            ★
+                        </div>
+
+                        <p>
+                            “ShoeDW memudahkan pembeli dalam melihat produk sepatu,
+                            memilih ukuran, dan melakukan checkout dengan praktis.”
+                        </p>
+
+                        <div class="testimonial-user">
+                            <strong>Pelanggan ShoeDW</strong>
+                            <span>Pengguna Landing Page</span>
+                        </div>
+
+                        <a href="#produk" class="testimonial-link">
+                            Jelajahi
+                            <span>›</span>
+                        </a>
+                    </article>
+                    @endforelse
                 </div>
-                @empty
-                <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        ★★★★★
-                    </div>
-
-                    <p>
-                        “Belum ada data pelanggan. Testimoni akan tampil setelah
-                        pelanggan melakukan pembelian melalui sistem.”
-                    </p>
-
-                    <h4>Pelanggan ShoeDW</h4>
-                    <span>Data belum tersedia</span>
-                </div>
-                @endforelse
-
-                {{-- Duplikasi agar animasi berjalan mulus --}}
-                @foreach ($testimoniPelanggan as $pelanggan)
-                @php
-                $review = $reviewPelanggan[$loop->index % count($reviewPelanggan)];
-                @endphp
-
-                <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        ★★★★★
-                    </div>
-
-                    <p>
-                        “{{ $review }}”
-                    </p>
-
-                    <h4>{{ $pelanggan->nama_pelanggan }}</h4>
-                    <span>{{ $pelanggan->alamat ?? 'Pelanggan ShoeDW' }}</span>
-                </div>
-                @endforeach
             </div>
         </div>
     </section>
