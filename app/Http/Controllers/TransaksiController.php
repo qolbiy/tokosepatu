@@ -8,6 +8,7 @@ use App\Models\Produk;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class TransaksiController extends Controller
 {
@@ -181,20 +182,33 @@ class TransaksiController extends Controller
     }
 
     public function konfirmasi(Transaksi $transaksi)
-{
-    if ($transaksi->status !== 'Pending') {
+    {
+        if ($transaksi->status !== 'Pending') {
+            return redirect()
+                ->route('transaksi.index')
+                ->with('error', 'Transaksi ini tidak memerlukan konfirmasi.');
+        }
+
+        $transaksi->update([
+            'status' => 'Selesai',
+            'confirmed_at' => now(),
+        ]);
+
         return redirect()
             ->route('transaksi.index')
-            ->with('error', 'Transaksi ini tidak memerlukan konfirmasi.');
+            ->with('success', 'Transaksi berhasil dikonfirmasi. Status berubah menjadi Selesai.');
     }
 
-    $transaksi->update([
-        'status' => 'Selesai',
-        'confirmed_at' => now(),
-    ]);
+    public function invoice(Transaksi $transaksi)
+    {
+        $transaksi->load([
+            'pelanggan',
+            'detailTransaksi.produk.kategori',
+        ]);
 
-    return redirect()
-        ->route('transaksi.index')
-        ->with('success', 'Transaksi berhasil dikonfirmasi. Status berubah menjadi Selesai.');
-}
+        $pdf = Pdf::loadView('transaksi.invoice-pdf', compact('transaksi'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->stream('invoice-' . $transaksi->kode_transaksi . '.pdf');
+    }
 }

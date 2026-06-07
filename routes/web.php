@@ -23,7 +23,7 @@ Route::get('/checkout/status/{transaksi}', [LandingController::class, 'checkoutS
 Route::post('/checkout/expired/{transaksi}', [LandingController::class, 'checkoutExpired'])
     ->name('checkout.expired');
 
-    Route::get('/invoice/{transaksi}', [LandingController::class, 'lihatInvoice'])
+Route::get('/invoice/{transaksi}', [LandingController::class, 'lihatInvoice'])
     ->name('invoice.lihat');
 
 Route::get('/invoice/{transaksi}/download', [LandingController::class, 'downloadInvoice'])
@@ -46,6 +46,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::patch('/transaksi/{transaksi}/konfirmasi', [TransaksiController::class, 'konfirmasi'])
         ->name('transaksi.konfirmasi');
+
+    Route::get('/transaksi/{transaksi}/invoice', [TransaksiController::class, 'invoice'])
+        ->name('transaksi.invoice');
 
     Route::get('/proses-etl', [DataWarehouseController::class, 'etl'])
         ->name('proses-etl.index');

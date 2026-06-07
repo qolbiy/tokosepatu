@@ -8247,3 +8247,49 @@ body.modal-open {
     background: #f3f4f6;
     transform: translateY(-1px);
 }
+
+.btn-invoice {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: #ede9fe;
+    color: #6d28d9;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.btn-invoice:hover {
+    background: #ddd6fe;
+    color: #5b21b6;
+    transform: translateY(-1px);
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    gap: 9px;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-buttons form {
+    margin: 0;
+}
+
+.action-buttons a,
+.action-buttons button {
+    min-width: 78px;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+}
