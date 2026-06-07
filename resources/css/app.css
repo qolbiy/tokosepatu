@@ -8200,3 +8200,50 @@ body.modal-open {
     transform: translateY(-2px);
 }
 
+.invoice-hidden {
+    display: none !important;
+}
+
+.invoice-action-box {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.payment-invoice-button,
+.payment-invoice-download-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.25s ease;
+}
+
+.payment-invoice-button {
+    background: #111827;
+    color: #ffffff;
+    border: 1px solid #111827;
+}
+
+.payment-invoice-download-button {
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid #111827;
+}
+
+.payment-invoice-button:hover {
+    background: #000000;
+    transform: translateY(-1px);
+}
+
+.payment-invoice-download-button:hover {
+    background: #f3f4f6;
+    transform: translateY(-1px);
+}

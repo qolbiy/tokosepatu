@@ -11,6 +11,7 @@ use App\Models\DetailTransaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LandingController extends Controller
 {
@@ -189,9 +190,11 @@ class LandingController extends Controller
 
             $subtotal = $produk->harga_jual * $validated['jumlah'];
 
-            $statusTransaksi = $validated['metode_pembayaran'] === 'COD'
-                ? 'Selesai'
-                : 'Pending';
+            $statusTransaksi = 'Pending';
+
+            $paymentDeadline = in_array($validated['metode_pembayaran'], ['Transfer Bank', 'QRIS Simulasi'])
+                ? now()->addMinutes(1)
+                : null;
 
             $transaksi = Transaksi::create([
                 'kode_transaksi' => 'TRX-' . strtoupper(Str::random(8)),
@@ -200,12 +203,8 @@ class LandingController extends Controller
                 'total_harga' => $subtotal,
                 'status' => $statusTransaksi,
                 'metode_pembayaran' => $validated['metode_pembayaran'],
-                'payment_deadline' => $statusTransaksi === 'Pending'
-                    ? now()->addMinutes(1)
-                    : null,
-                'confirmed_at' => $statusTransaksi === 'Selesai'
-                    ? now()
-                    : null,
+                'payment_deadline' => $paymentDeadline,
+                'confirmed_at' => null,
             ]);
 
             DetailTransaksi::create([
@@ -221,15 +220,15 @@ class LandingController extends Controller
 
             DB::commit();
 
-            if ($statusTransaksi === 'Pending') {
+            if ($validated['metode_pembayaran'] === 'COD') {
                 return redirect()
                     ->route('checkout.pending', $transaksi->id)
-                    ->with('success', 'Pesanan berhasil dibuat. Silakan lakukan pembayaran sebelum batas waktu habis.');
+                    ->with('success', 'Pesanan COD berhasil dibuat. Silakan menunggu konfirmasi dari admin.');
             }
 
             return redirect()
-                ->to(route('landing') . '#produk')
-                ->with('success', 'Pesanan berhasil dibuat dengan metode COD. Transaksi langsung berstatus Selesai.');
+                ->route('checkout.pending', $transaksi->id)
+                ->with('success', 'Pesanan berhasil dibuat. Silakan lakukan pembayaran sebelum batas waktu habis.');
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -300,5 +299,43 @@ class LandingController extends Controller
                 'message' => 'Gagal mengubah status transaksi: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function lihatInvoice(Transaksi $transaksi)
+    {
+        if ($transaksi->status !== 'Selesai') {
+            return redirect()
+                ->route('checkout.pending', $transaksi->id)
+                ->with('error', 'Invoice hanya tersedia setelah pembayaran lunas.');
+        }
+
+        $transaksi->load([
+            'pelanggan',
+            'detailTransaksi.produk.kategori',
+        ]);
+
+        $pdf = Pdf::loadView('invoice-user-pdf', compact('transaksi'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->stream('invoice-' . $transaksi->kode_transaksi . '.pdf');
+    }
+
+    public function downloadInvoice(Transaksi $transaksi)
+    {
+        if ($transaksi->status !== 'Selesai') {
+            return redirect()
+                ->route('checkout.pending', $transaksi->id)
+                ->with('error', 'Invoice hanya tersedia setelah pembayaran lunas.');
+        }
+
+        $transaksi->load([
+            'pelanggan',
+            'detailTransaksi.produk.kategori',
+        ]);
+
+        $pdf = Pdf::loadView('invoice-user-pdf', compact('transaksi'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->download('invoice-' . $transaksi->kode_transaksi . '.pdf');
     }
 }

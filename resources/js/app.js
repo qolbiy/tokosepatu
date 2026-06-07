@@ -1396,6 +1396,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const countdownBox = document.querySelector('.payment-countdown-box');
     const countdownText = document.getElementById('paymentCountdown');
     const paymentStatusText = document.getElementById('paymentStatusText');
+    const invoiceActionBox = document.getElementById('invoiceActionBox');
 
     if (!countdownBox || !countdownText || !paymentStatusText) {
         return;
@@ -1430,6 +1431,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function showInvoiceActions() {
+    if (!invoiceActionBox) {
+        return;
+    }
+
+    invoiceActionBox.classList.remove('invoice-hidden');
+}
+
     function showPaymentSuccessAlert() {
         if (successAlertShown) {
             return;
@@ -1437,13 +1446,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         successAlertShown = true;
 
-        Swal.fire({
-            icon: 'success',
-            title: 'Pembayaran Berhasil',
-            text: 'Pembayaran berhasil dikonfirmasi oleh admin. Status pesanan Anda sudah Selesai.',
-            confirmButtonText: 'Mengerti',
-            confirmButtonColor: '#16a34a',
-        });
+       Swal.fire({
+    icon: 'success',
+    title: 'Pesanan Dikonfirmasi',
+    text: 'Pesanan Anda sudah dikonfirmasi oleh admin dan berstatus Selesai.',
+    confirmButtonText: 'Mengerti',
+    confirmButtonColor: '#16a34a',
+});
     }
 
     function showPaymentExpiredAlert() {
@@ -1463,10 +1472,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function setPaymentAsConfirmed(showAlert = false) {
-        stopIntervals();
+    stopIntervals();
 
-        lastStatus = 'Selesai';
+    lastStatus = 'Selesai';
 
+    function updateConfirmedView() {
         paymentStatusText.textContent = 'Selesai';
         paymentStatusText.classList.remove('payment-status-pending');
         paymentStatusText.classList.remove('payment-status-expired');
@@ -1477,16 +1487,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
         countdownText.textContent = 'Lunas';
 
+        showInvoiceActions();
+
         const countdownDescription = countdownBox.querySelector('p');
 
         if (countdownDescription) {
-            countdownDescription.textContent = 'Pembayaran sudah dikonfirmasi oleh admin. Pesanan Anda telah berstatus Selesai.';
-        }
-
-        if (showAlert) {
-            showPaymentSuccessAlert();
+            countdownDescription.textContent = 'Pesanan sudah dikonfirmasi oleh admin. Invoice transaksi sudah tersedia.';
         }
     }
+
+    if (showAlert) {
+        setTimeout(function () {
+            Swal.fire({
+                icon: 'success',
+                title: 'Pesanan Dikonfirmasi',
+                text: 'Pesanan Anda sudah dikonfirmasi oleh admin dan berstatus Selesai.',
+                confirmButtonText: 'Mengerti',
+                confirmButtonColor: '#16a34a',
+            }).then(function () {
+                updateConfirmedView();
+            });
+        }, 3000);
+
+        return;
+    }
+
+    updateConfirmedView();
+}
 
     function setPaymentAsExpired(showAlert = false) {
         stopIntervals();
@@ -1562,10 +1589,17 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        if (!deadlineValue) {
-            countdownText.textContent = '10:00';
-            return;
-        }
+       if (!deadlineValue) {
+    countdownText.textContent = 'Menunggu';
+
+    const countdownDescription = countdownBox.querySelector('p');
+
+    if (countdownDescription) {
+        countdownDescription.textContent = 'Pesanan sedang menunggu konfirmasi dari admin.';
+    }
+
+    return;
+}
 
         const deadline = new Date(deadlineValue).getTime();
 

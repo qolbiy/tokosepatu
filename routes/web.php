@@ -23,6 +23,12 @@ Route::get('/checkout/status/{transaksi}', [LandingController::class, 'checkoutS
 Route::post('/checkout/expired/{transaksi}', [LandingController::class, 'checkoutExpired'])
     ->name('checkout.expired');
 
+    Route::get('/invoice/{transaksi}', [LandingController::class, 'lihatInvoice'])
+    ->name('invoice.lihat');
+
+Route::get('/invoice/{transaksi}/download', [LandingController::class, 'downloadInvoice'])
+    ->name('invoice.download');
+
 Route::get('/detail-produk/{produk}', [LandingController::class, 'showProduk'])
     ->name('landing.produk.show');
 
