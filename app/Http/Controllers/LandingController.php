@@ -110,7 +110,7 @@ class LandingController extends Controller
                 $query->where('merek', $merek);
             })
             ->latest()
-            ->limit(20)
+            ->limit(30)
             ->get();
 
         $kategoriFilterLanding = Kategori::orderBy('nama_kategori', 'asc')->get();
